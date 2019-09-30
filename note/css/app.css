@@ -60,14 +60,14 @@ a,a:hover{
     display: flex;
 }
 .sidebar{
-    width: 250px;
+    min-width: 200px;
     background-color: #fff;
     display: inline-block;
     height: 100%;
     color: #8CBBB2;
 }
 .sidebar ul{
-    padding: 15px;
+    padding:0 15px;
 }
 .content{
     background-color: #eef5fa;
@@ -87,4 +87,77 @@ a,a:hover{
 }
 .ce-block__content, .ce-toolbar__content{
     max-width: 100% !important;
+}
+
+/*************************NOTE*****************************/
+.note-wrap{
+    padding: 5px 10px;
+    color: #3D5E61;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+.note-wrap.all:hover{
+    color: #F28241;
+}
+#note_title{
+    border: none;
+    font-size: 22px;
+    outline: none;
+    color: #666666;
+}
+#note_title:-internal-autofill-selected {
+    background-color: #fff !important;
+    background-image: none !important;
+}
+.note-pin-item{
+    padding: 2px 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+.note-pin-item:hover,.note-pin-item.active{
+    color: #F28241;
+    font-weight: bold;
+}
+.note-pin-item.active:before {
+    content: '';
+    position: absolute;
+    left: 20px;
+    width: 2px;
+    height: 15px;
+    top: 7px;
+    background-color: #F28241;
+}
+.list-note{
+    overflow-y: auto;
+    min-width: 250px;
+    width: 250px;
+    background: #f8eee6;
+    color: #8CBBB2;
+}
+#ul-note{
+    padding: 15px;
+}
+.ul-note_item{
+    cursor: pointer;
+    border-bottom: 1px solid #ddd;
+    padding: 5px 15px;
+    margin: 0 -15px;
+}
+.ul-title{
+    color: #3D5E61;
+    font-weight: bold;
+    padding: 5px 0;
+    font-size: 14px;
+}
+.ul-content{
+    max-height: 38px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 5px 0;
+}
+.ul-time{
+    color: #666;
+    font-size: 11px;
 }

@@ -7,85 +7,87 @@ const saveButton = document.getElementById('saveButton');
  * To initialize the Editor, create a new instance with configuration object
  * @see docs/installation.md for mode details
  */
+var optionEditor = {
+  /**
+   * Wrapper of Editor
+   */
+  holder: 'editorjs',
+  /**
+   * Tools list
+   */
+  tools: {
+    /**
+     * Each Tool is a Plugin. Pass them via 'class' option with necessary settings {@link docs/tools.md}
+     */
+    header: {
+      class: Header,
+      inlineToolbar: ['link'],
+      config: {
+        placeholder: 'Header'
+      },
+      shortcut: 'CMD+SHIFT+H'
+    },
+    /**
+     * Or pass class directly without any configuration
+     */
+    image: {
+      class: SimpleImage,
+      inlineToolbar: ['link'],
+    },
+    list: {
+      class: List,
+      inlineToolbar: true,
+      shortcut: 'CMD+SHIFT+L'
+    },
+    checklist: {
+      class: Checklist,
+      inlineToolbar: true,
+    },
+    quote: {
+      class: Quote,
+      inlineToolbar: true,
+      config: {
+        quotePlaceholder: 'Enter a quote',
+        captionPlaceholder: 'Quote\'s author',
+      },
+      shortcut: 'CMD+SHIFT+O'
+    },
+    warning: Warning,
+    marker: {
+      class:  Marker,
+      shortcut: 'CMD+SHIFT+M'
+    },
+    code: {
+      class:  CodeTool,
+    },
+    delimiter: Delimiter,
+    inlineCode: {
+      class: InlineCode,
+      shortcut: 'CMD+SHIFT+C'
+    },
+    linkTool: LinkTool,
+    embed: {
+      class:  Embed,
+      shortcut: 'CMD+SHIFT+E'
+    },
+    table: {
+      class: Table,
+      inlineToolbar: true,
+      shortcut: 'CMD+ALT+T'
+    },
+  },
+  data: {
+  },
+  onReady: function(){
+    //saveButton.click();
+  },
+  onChange: function() {
+    console.log('something changed');
+  }
+}
+
 if(document.getElementById('editorjs')){
-  var editor = new EditorJS({
-    /**
-     * Wrapper of Editor
-     */
-    holder: 'editorjs',
-    /**
-     * Tools list
-     */
-    tools: {
-      /**
-       * Each Tool is a Plugin. Pass them via 'class' option with necessary settings {@link docs/tools.md}
-       */
-      header: {
-        class: Header,
-        inlineToolbar: ['link'],
-        config: {
-          placeholder: 'Header'
-        },
-        shortcut: 'CMD+SHIFT+H'
-      },
-      /**
-       * Or pass class directly without any configuration
-       */
-      image: {
-        class: SimpleImage,
-        inlineToolbar: ['link'],
-      },
-      list: {
-        class: List,
-        inlineToolbar: true,
-        shortcut: 'CMD+SHIFT+L'
-      },
-      checklist: {
-        class: Checklist,
-        inlineToolbar: true,
-      },
-      quote: {
-        class: Quote,
-        inlineToolbar: true,
-        config: {
-          quotePlaceholder: 'Enter a quote',
-          captionPlaceholder: 'Quote\'s author',
-        },
-        shortcut: 'CMD+SHIFT+O'
-      },
-      warning: Warning,
-      marker: {
-        class:  Marker,
-        shortcut: 'CMD+SHIFT+M'
-      },
-      code: {
-        class:  CodeTool,
-      },
-      delimiter: Delimiter,
-      inlineCode: {
-        class: InlineCode,
-        shortcut: 'CMD+SHIFT+C'
-      },
-      linkTool: LinkTool,
-      embed: {
-        class:  Embed,
-        shortcut: 'CMD+SHIFT+E'
-      },
-      table: {
-        class: Table,
-        inlineToolbar: true,
-        shortcut: 'CMD+ALT+T'
-      },
-    },
-    data: {
-    },
-    onReady: function(){
-      //saveButton.click();
-    },
-    onChange: function() {
-      console.log('something changed');
-    }
-  });
+  var editor = new EditorJS(optionEditor);
 }
 
 /**
@@ -94,8 +96,7 @@ if(document.getElementById('editorjs')){
 if(saveButton){
     saveButton.addEventListener('click', function () {
       editor.save().then((savedData) => {
-        console.log(savedData)
-        createNote('test save', savedData.blocks)
+        createNote(document.getElementById('note_title').value || '', savedData.blocks)
       });
     });
 }
@@ -115,28 +116,116 @@ var firebaseConfig = {
 // Initialize Firebase
 var app = firebase.initializeApp(firebaseConfig);
 var db = firebase.firestore(app);
+var user;
+var arrNote = [];
+var arrNotePin = [];
+var arrNoteBooks = [];
 
 function addCollectionInit(collectionName){
-  var batch = db.batch();
+  //var batch = db.batch();
   //var notebooks = db.collection('users').doc(collectionName).collection('note').doc('notebooks')
   //var none = db.collection('users').doc(collectionName).collection('note').doc('none')
-  var notebooks = db.doc('users/' + collectionName + '/note/notebooks')
-  var none = db.doc('users/' + collectionName + '/note/none')
+  //var notebooks = db.doc('users/' + collectionName + '/note/notebooks')
+  //var none = db.doc('users/' + collectionName + '/note/none')
 
-  batch.set(notebooks, {});
-  batch.set(none, {});
+  // batch.set(notebooks, {});
+  // batch.set(none, {});
 
-  batch.commit();
+  // batch.commit();
+}
+
+function initSetup(){
+  db.collection('note').onSnapshot(function(snapshot){
+    snapshot.docChanges().forEach(function(change) {
+      if (change.type === "added") {
+        arrNote[change.doc.id] = change.doc.data()
+          if(change.doc.data().pin){
+            arrNotePin[change.doc.id] = change.doc.data()
+          }else{
+            arrNote[change.doc.id] = change.doc.data()
+          }
+        arrNoteBooks.push(change.doc.data().notebook)
+      }
+      if (change.type === "modified") {
+        arrNote[change.doc.id] = change.doc.data()
+      }
+      if (change.type === "removed") {
+        delete arrNote[change.doc.id]
+      }
+    });
+    renderNote()
+    renderNotePin()
+    renderNoteBooks()
+  })
+}
+
+function renderNoteBooks(){
+  arrNoteBooks = arrNoteBooks.filter(onlyUnique);
+  var strNoteBook = '';
+  for(noteBookIdx in arrNoteBooks){
+    strNoteBook += '<li data-id="' + noteBookIdx + '" class="notebook-item"><img width="16px" height="16px" src="/images/book.svg" style="padding-right: 5px"/>' + arrNoteBooks[noteBookIdx] + '<li>'
+  }
+  document.getElementById('notebook-content').innerHTML = strNoteBook
+  console.log('renderNoteBooks')
+}
+
+function renderNote(){
+  var strNote = '';
+  for(noteIdx in arrNote){
+    strNote += '<li class="ul-note_item" data-id="' + noteIdx + '">'
+    strNote += '  <div class="ul-title">' + arrNote[noteIdx]['title'] + '</div>'
+    strNote += '  <div class="ul-content">' + arrNote[noteIdx]['content'][0]['data']['text'] + '</div>'
+    strNote += '  <div class="ul-time">' + arrNote[noteIdx]['time'] + '</div>'
+    strNote += '</li>'
+  }
+  document.getElementById('ul-note').innerHTML = strNote
+}
+
+$('body').on('click', '.note-pin-item', function(e){
+  var idNote = $(this).data('id')
+  optionEditor.data.blocks = arrNotePin[idNote]['content']
+  optionEditor.data.time = 1569838207510
+  optionEditor.data.version = '2.15.1'
+  editor.destroy()
+  $('#editorjs').append('<div><input type="text" name="title" id="note_title" value="' + arrNotePin[idNote]['title'] + '" placeholder="Title"></div>')
+
+  editor = new EditorJS(optionEditor);
+})
+
+$('body').on('click', '.note-wrap.all', function(e){
+  $('.list-note').toggle()
+})
+
+$('body').on('click', '.ul-note_item', function(e){
+  var idNote = $(this).data('id')
+  optionEditor.data.blocks = arrNote[idNote]['content']
+  optionEditor.data.time = 1569838207510
+  optionEditor.data.version = '2.15.1'
+  editor.destroy()
+  $('#editorjs').append('<div><input type="text" name="title" id="note_title" value="' + arrNote[idNote]['title'] + '" placeholder="Title"></div>')
+
+  editor = new EditorJS(optionEditor);
+})
+
+
+
+function renderNotePin(){
+  var strNote = '';
+  for(noteIdx in arrNotePin){
+    strNote += '<li data-id="' + noteIdx + '" class="note-pin-item"><img width="16px" height="16px" src="/images/book.svg" style="padding-right: 5px"/>' + arrNotePin[noteIdx]['title'] + '<li>'
+  }
+  document.getElementById('notePin-content').innerHTML = strNote
 }
 
 function createNote(title, content, notebook){
   notebook = notebook || ''
   if(user.email){
     db.collection('note').add({
-      title: title,
+      title: title || 'Untitled',
       content: content,
       email: user.email,
       notebook: notebook,
+      pin: false,
     })
   } else {
     console.log('cannot create note, please login')
@@ -159,6 +248,7 @@ firebase.auth().onAuthStateChanged(function(userLogin) {
   if (userLogin) {
     user = userLogin
     getDataNote(user.email)
+    initSetup()
   } else {
     window.location.href = '/login';
   }
@@ -249,3 +339,8 @@ function getrandom(){
     return Math.random().toString(32).substring(2, 5) + Math.random().toString(32).substring(2, 5);
 }
 
+function onlyUnique(value, index, self) {
+  if(!value) return false;
+
+  return self.indexOf(value) === index;
+}

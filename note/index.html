@@ -13,16 +13,27 @@
     </div>
     <div class="content-area">
         <div class="sidebar">
-            <ul>
-                <li>test</li>
-                <li>test2</li>
+            <div class="note-wrap"><img width="16px" height="16px" src="/images/bookmark.svg" style="padding-right: 5px"/> PIN</div>
+            <ul id="notePin-content">
+            </ul>
+
+            <div class="note-wrap all"><img width="18px" height="18px" src="/images/note.svg" style="padding-right: 5px"/> ALL NOTE</div>
+
+            <div class="note-wrap"><img width="18px" height="18px" src="/images/notebooks.svg" style="padding-right: 5px"/> NOTEBOOK</div>
+            <ul id="notebook-content">
+            </ul>
+        </div>
+        <div class="list-note" style="display: none;">
+            <ul id="ul-note">
             </ul>
         </div>
         <div class="content">
             <div class="btn-group">
                 <div class="btn btn-save" id="saveButton">SAVE</div>
             </div>
-            <div id="editorjs"></div>
+            <div id="editorjs">
+                <div><input type="text" name="title" id="note_title" placeholder="Title"></div>
+            </div>
         </div>
     </div>
 
@@ -46,6 +57,10 @@
     <script src="https://www.gstatic.com/firebasejs/7.0.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.0.0/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.0.0/firebase-auth.js"></script>
+    <script
+      src="https://code.jquery.com/jquery-3.4.1.min.js"
+      integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+      crossorigin="anonymous"></script>
     <!-- TODO: Add SDKs for Firebase products that you want to use
          https://firebase.google.com/docs/web/setup#available-libraries -->
     <script src="/note/js/app.js"></script>
