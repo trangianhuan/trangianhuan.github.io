@@ -135,15 +135,14 @@ function addCollectionInit(collectionName){
 }
 
 function initSetup(){
-  db.collection('note').onSnapshot(function(snapshot){
+  db.collection('note').where('email', '==', user.email).onSnapshot(function(snapshot){
     snapshot.docChanges().forEach(function(change) {
       if (change.type === "added") {
-        arrNote[change.doc.id] = change.doc.data()
-          if(change.doc.data().pin){
-            arrNotePin[change.doc.id] = change.doc.data()
-          }else{
-            arrNote[change.doc.id] = change.doc.data()
-          }
+        if(change.doc.data().pin){
+          arrNotePin[change.doc.id] = change.doc.data()
+        }else{
+          arrNote[change.doc.id] = change.doc.data()
+        }
         arrNoteBooks.push(change.doc.data().notebook)
       }
       if (change.type === "modified") {
