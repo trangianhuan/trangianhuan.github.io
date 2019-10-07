@@ -45,6 +45,31 @@ body{
     overflow-y: auto;
     height: 100%;
 }
+.feed-item::-webkit-scrollbar-track
+{
+  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+  background-color: #F5F5F5;
+}
+
+.feed-item::-webkit-scrollbar
+{
+  width: 10px;
+  background-color: #F5F5F5;
+}
+
+.feed-item::-webkit-scrollbar-thumb
+{
+  background-color: #F90;
+  background-image: -webkit-linear-gradient(45deg,
+                                            rgba(255, 255, 255, .2) 25%,
+                        transparent 25%,
+                        transparent 50%,
+                        rgba(255, 255, 255, .2) 50%,
+                        rgba(255, 255, 255, .2) 75%,
+                        transparent 75%,
+                        transparent)
+}
+
 .feed-item_header{
     font-weight: 600;
     font-size: 1.25rem;
@@ -55,7 +80,7 @@ body{
     flex-flow: column;
     padding: 15px;
     background: #fff;
-    width: 192px;
+    /*width: 192px;*/
     -webkit-box-shadow: 7px 0px 5px 0px rgba(239,242,246,1);
     -moz-box-shadow: 7px 0px 5px 0px rgba(239,242,246,1);
     box-shadow: 7px 0px 5px 0px rgba(239,242,246,1);
@@ -95,7 +120,7 @@ body{
 .feed-title{
     font-weight: 600;
     overflow: hidden;
-    height: 28px;
+    max-height: 28px;
 }
 .feed-title, .feed-content{
     margin-bottom: 10px;
@@ -114,6 +139,8 @@ body{
     margin-bottom: 30px;
     display: inline-flex;
     flex-direction: column;
+    flex: 0 1 31%;
+    max-height: 400px;
 }
 .content{
     overflow-y: hidden;

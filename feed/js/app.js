@@ -19,7 +19,7 @@ var arrSiteData = [];
 initSetup()
 
 function initSetup(){
-  db.collection('feed').onSnapshot(function(snapshot){
+  db.collection('feed').orderBy('public_at', 'desc').onSnapshot(function(snapshot){
     snapshot.docChanges().forEach(function(change) {
       arrSite.push(change.doc.data().site)
 
@@ -87,11 +87,31 @@ function bindData(site, data){
       }
     }
     feed += '  <a href="' + feedData.link + '" class="feed-title">' + feedData.title + '</a>'
-    feed += '  <div class="feed-content">' + feedData.description.replace(/<img[^>]*>/g,"") + '</div>'
+    //feed += '  <div class="feed-content">' + feedData.description.replace(/<img[^>]*>/g,"") + '</div>'
     if(typeof feedData.public_at != 'undefined'){
       feed += '  <span class="feed-publish">' + feedData.public_at + '</span>'
     }
     feed += '</div>'
     $('#'+site).append(feed)
   }
+}
+
+function initPublicDate()
+{
+  db.collection("feed").get()
+    .then(function(querySnapshot) {
+      var batch = db.batch();
+
+      querySnapshot.forEach(function(doc) {
+          // doc.data() is never undefined for query doc snapshots
+        data = doc.data();
+        if(!data.public_at){
+          var sfRef = db.collection("feed").doc(doc.id);
+          batch.update(sfRef, {"public_at": data.created_at});
+        }
+
+      });
+
+      batch.commit()
+    })
 }
