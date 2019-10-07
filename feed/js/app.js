@@ -15,6 +15,7 @@ var db = firebase.firestore(app);
 var arrFeed = [];
 var arrSite = [];
 var arrSiteData = [];
+var feedNewString = '';
 
 initSetup()
 
@@ -41,27 +42,68 @@ function initSetup(){
       }
     });
 
-    arrSite = arrSite.filter( onlyUnique );
-    var siteIndx;
-    for (var index in arrSite) {
-      siteIndx = arrSite[index].replace(/\//g, '').replace('https:', '').replace('http:', '').replace(/\./g, '')
-      var feedItemHeader = document.createElement('div')
-      feedItemHeader.setAttribute('class', 'feed-item_header')
-      feedItemHeader.innerText = arrSite[index]
+    renderArraySite(arrSite)
+    prepareFeedNewData(arrSite)
 
-      var feedItem = document.createElement('div')
-      feedItem.setAttribute('class', 'feed-item')
-      feedItem.setAttribute('id', siteIndx)
-
-      var el = document.createElement('div')
-      el.setAttribute('class', 'feed-column')
-
-      el.appendChild(feedItemHeader)
-      el.appendChild(feedItem)
-      $('.feed-row').append(el)
-      bindData(siteIndx, arrSiteData[arrSite[index]])
-    }
   })
+}
+var dateGetNew = 5
+function prepareFeedNewData(arrSite){
+  arrSite = arrSite.filter( onlyUnique );
+
+  for (var index in arrSite) {
+    var last = Date.now() - (dateGetNew * 24 * 60 * 60 * 1000);
+    var feedData = arrSiteData[arrSite[index]]
+    var publicDate = new Date(feedData.public_at)
+    if(publicDate.getTime() >= last){
+      feedNewString += '<div class="feed-header-new">' + arrSite[index] + '</div>'
+      feedNewString += renderArray(arrSiteData[arrSite[index]])
+    }
+
+  }
+}
+
+function renderArray(arrData){
+  var feedNew = '';
+  if(!arrData.length) return '';
+
+  for (var index in arrData) {
+    feedNew += '  <div class="feed-item-new">'
+    feedNew += '    <div class="feed-dummy"></div>'
+    feedNew += '    <div class="feed-info-new">'
+    feedNew += '      <div class="feed-area-new">'
+    feedNew += '        <div class="feed-title-new">' + arrData[index].title + '</div>'
+    feedNew += '        <div class="feed-description-new">' + arrData[index].description + '</div>'
+    feedNew += '      </div>'
+    feedNew += '      <div class="feed-publish-new">' + arrData[index].public_at + '</div>'
+    feedNew += '    </div>'
+    feedNew += '  </div>'
+  }
+  return feedNew;
+}
+
+function renderArraySite(arrSite){
+  arrSite = arrSite.filter( onlyUnique );
+  $('.feed-row').html('')
+  var siteIndx;
+  for (var index in arrSite) {
+    siteIndx = arrSite[index].replace(/\//g, '').replace('https:', '').replace('http:', '').replace(/\./g, '')
+    var feedItemHeader = document.createElement('div')
+    feedItemHeader.setAttribute('class', 'feed-item_header')
+    feedItemHeader.innerText = arrSite[index]
+
+    var feedItem = document.createElement('div')
+    feedItem.setAttribute('class', 'feed-item')
+    feedItem.setAttribute('id', siteIndx)
+
+    var el = document.createElement('div')
+    el.setAttribute('class', 'feed-column')
+
+    el.appendChild(feedItemHeader)
+    el.appendChild(feedItem)
+    $('.feed-row').append(el)
+    bindData(siteIndx, arrSiteData[arrSite[index]])
+  }
 }
 
 function onlyUnique(value, index, self) {
@@ -73,17 +115,10 @@ function bindData(site, data){
     var feedData = data[idx]
     var feed = '<div class="feed-info">';
     if(typeof feedData.public_at != 'undefined'){
-      var last = Date.now() - (5 * 24 * 60 * 60 * 1000);
+      var last = Date.now() - (dateGetNew * 24 * 60 * 60 * 1000);
       var publicDate = new Date(feedData.public_at)
-      if(feedData.link == 'https://laravel-news.com/laravel-fireable-package'){
-        console.log('step10', publicDate.getTime(), last)
-      }
       if(publicDate.getTime() >= last){
-        console.log('step1', feedData.link)
-
         feed += '  <span class="feed-flag">NEW</span>'
-      }else{
-        console.log('nottime')
       }
     }
     feed += '  <a href="' + feedData.link + '" class="feed-title">' + feedData.title + '</a>'
@@ -95,6 +130,23 @@ function bindData(site, data){
     $('#'+site).append(feed)
   }
 }
+
+$('body').on('change', '.control-item_select', function(){
+  $('.feed-row').html('')
+  var conditionSelect = +$(this).val()
+console.log('conditionSelect', conditionSelect)
+  switch(conditionSelect) {
+    case 0:
+    console.log('conditionSelect', conditionSelect)
+      renderArraySite(arrSite)
+      break;
+    case 1:
+    console.log('conditionSelect', conditionSelect)
+      $('.feed-row').html(feedNewString)
+      break;
+    default:
+  }
+})
 
 function initPublicDate()
 {

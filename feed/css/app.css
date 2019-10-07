@@ -21,8 +21,9 @@ body{
     padding: 30px;
 }
 .control-item_header{
-    padding-bottom: 10px;
+    padding-bottom: 5px;
     font-weight: 600;
+    color: #E85B27;
 }
 .control-item_input,
 .control-item_select{
@@ -36,7 +37,7 @@ body{
     display: inline-flex;
     flex-direction: column;
     width: 237px;
-    padding-right: 30px;
+    padding: 20px 30px 0 0;
 }
 .feed-item{
     display: inline-flex;
@@ -205,4 +206,55 @@ body{
   .popup{
     width: 70%;
   }
+}
+/***************LIST NEW*****************/
+.feed-item-new{
+  width: 20%;
+  /* height: 20%; */
+  position: relative;
+  background: red;
+  display: inline-flex;
+  margin: 2px;
+}
+.feed-dummy{
+  padding-top: 100%;
+}
+.feed-info-new{
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #8CBBB2;
+  padding: 15px;
+
+  display: flex;
+  flex-direction: column;
+  /* justify-items: baseline; */
+  justify-content: space-between;
+}
+.feed-title-new{
+  max-height: 28px;
+  overflow: hidden;
+  line-height: 1.1;
+  margin-bottom: 15px;
+  font-weight: 600;
+  color: #fff;
+}
+.feed-publish-new{
+  font-size: 1rem;
+  color: #ddd;
+}
+.feed-header-new{
+  color: #E85B27;
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 30px 0 5px;
+  border-bottom: 1px solid #8CBBB2;
+}
+.feed-area-new{
+  overflow: hidden;
+}
+.feed-description-new{
+  color: #3D5E61;
 }
