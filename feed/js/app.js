@@ -16,6 +16,7 @@ var arrFeed = [];
 var arrSite = [];
 var arrSiteData = [];
 var feedNewString = '';
+var stringLoadImg = '<div class="load" ><img src="/images/load.gif"></div>'
 
 initSetup()
 
@@ -50,16 +51,23 @@ function initSetup(){
 var dateGetNew = 5
 function prepareFeedNewData(arrSite){
   arrSite = arrSite.filter( onlyUnique );
-
+  var last = Date.now() - (dateGetNew * 24 * 60 * 60 * 1000);
+  var arrFeedNew = [];
   for (var index in arrSite) {
-    var last = Date.now() - (dateGetNew * 24 * 60 * 60 * 1000);
     var feedData = arrSiteData[arrSite[index]]
-    var publicDate = new Date(feedData.public_at)
-    if(publicDate.getTime() >= last){
-      feedNewString += '<div class="feed-header-new">' + arrSite[index] + '</div>'
-      feedNewString += renderArray(arrSiteData[arrSite[index]])
+    for(var idfeed in feedData){
+      var publicDate = new Date(feedData[idfeed].public_at)
+
+      if(publicDate.getTime() >= last){
+        arrFeedNew.push(feedData[idfeed])
+      }
     }
 
+    if(arrFeedNew.length){
+      feedNewString += '<div class="feed-header-new">' + arrSite[index] + '</div>'
+      feedNewString += renderArray(arrFeedNew)
+      arrFeedNew = []
+    }
   }
 }
 
@@ -73,7 +81,7 @@ function renderArray(arrData){
     feedNew += '    <div class="feed-info-new">'
     feedNew += '      <div class="feed-area-new">'
     feedNew += '        <div class="feed-title-new">' + arrData[index].title + '</div>'
-    feedNew += '        <div class="feed-description-new">' + arrData[index].description + '</div>'
+    feedNew += '        <div class="feed-description-new">' + arrData[index].description.replace(/<[^>]*>?/gm, '') + '</div>'
     feedNew += '      </div>'
     feedNew += '      <div class="feed-publish-new">' + arrData[index].public_at + '</div>'
     feedNew += '    </div>'
@@ -115,7 +123,7 @@ function bindData(site, data){
     var feedData = data[idx]
     var feed = '<div class="feed-info">';
     if(typeof feedData.public_at != 'undefined'){
-      var last = Date.now() - (dateGetNew * 24 * 60 * 60 * 1000);
+      var last = Date.now() - (dateGetNew * 24 * 60 * 60 * 1000)
       var publicDate = new Date(feedData.public_at)
       if(publicDate.getTime() >= last){
         feed += '  <span class="feed-flag">NEW</span>'
@@ -132,21 +140,24 @@ function bindData(site, data){
 }
 
 $('body').on('change', '.control-item_select', function(){
-  $('.feed-row').html('')
+  $('.feed-row').html(stringLoadImg)
   var conditionSelect = +$(this).val()
-console.log('conditionSelect', conditionSelect)
+
   switch(conditionSelect) {
     case 0:
-    console.log('conditionSelect', conditionSelect)
       renderArraySite(arrSite)
       break;
     case 1:
-    console.log('conditionSelect', conditionSelect)
       $('.feed-row').html(feedNewString)
       break;
     default:
   }
 })
+
+function sleep(ms) {
+    var unixtime_ms = new Date().getTime();
+    while(new Date().getTime() < unixtime_ms + ms) {}
+}
 
 function initPublicDate()
 {
@@ -157,13 +168,51 @@ function initPublicDate()
       querySnapshot.forEach(function(doc) {
           // doc.data() is never undefined for query doc snapshots
         data = doc.data();
-        if(!data.public_at){
+        // if(!data.public_at || typeof data.public_at == 'object'){
+        //   var sfRef = db.collection("feed").doc(doc.id);
+        //   batch.update(sfRef, {"public_at": formatDate(data.created_at.toDate()) });
+        // }
+        if(typeof data.public_at == 'string'){
           var sfRef = db.collection("feed").doc(doc.id);
-          batch.update(sfRef, {"public_at": data.created_at});
+          batch.update(sfRef, {"public_at": formatDate(data.public_at) });
         }
 
       });
 
       batch.commit()
     })
+}
+
+function formatDate(datetime){
+    if(!datetime) return '';
+
+    var dateParse = new Date(datetime);
+    var dd = dateParse.getDate();
+    var mm = dateParse.getMonth()+1;
+    var yyyy = dateParse.getFullYear();
+    var hh = dateParse.getHours();
+    var minus = dateParse.getMinutes();
+    var ss = dateParse.getSeconds();
+
+    if(dd<10){
+        dd='0'+dd
+    }
+
+    if(mm<10){
+        mm='0'+mm
+    }
+
+    if(hh<10){
+        hh='0'+hh
+    }
+
+    if(minus<10){
+        minus='0'+minus
+    }
+
+    if(ss<10){
+        ss='0'+ss
+    }
+
+    return dd+'/'+mm+'/'+yyyy + ' ' + hh + ':' + minus + ':' + ss;
 }

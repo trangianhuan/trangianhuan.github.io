@@ -3,6 +3,7 @@
 <head>
     <title>GOSUK-NOTE</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
+    <link href="/note/css/quill.snow.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="/note/css/app.css">
 </head>
 <body>
@@ -32,32 +33,20 @@
             <div class="btn-group">
                 <div class="btn btn-save" id="saveButton">SAVE</div>
             </div>
-            <div id="editorjs">
-                <div><input type="text" name="title" id="note_title" placeholder="Title"></div>
+            <div class="note-area">
+                <div id="editorjs">
+                    <div><input type="text" name="title" id="note_title" placeholder="Title"></div>
+                </div>
             </div>
         </div>
     </div>
 
+    <script src="/note/js/quill.min.js"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/header@latest"></script><!-- Header -->
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/simple-image@latest"></script><!-- Image -->
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/delimiter@latest"></script><!-- Delimiter -->
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/list@latest"></script><!-- List -->
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/checklist@latest"></script><!-- Checklist -->
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/quote@latest"></script><!-- Quote -->
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/code@latest"></script><!-- Code -->
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/embed@latest"></script><!-- Embed -->
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/table@latest"></script><!-- Table -->
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/link@latest"></script><!-- Link -->
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/warning@latest"></script><!-- Warning -->
-
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/marker@latest"></script><!-- Marker -->
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/inline-code@latest"></script><!-- Inline Code -->
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
-
-    <script src="https://www.gstatic.com/firebasejs/7.0.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/7.0.0/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/7.0.0/firebase-auth.js"></script>
+    <!-- https://www.gstatic.com/firebasejs/7.0.0 -->
+    <script src="/js/firebase-app.js"></script>
+    <script src="/js/firebase-firestore.js"></script>
+    <script src="/js/firebase-auth.js"></script>
     <script
       src="https://code.jquery.com/jquery-3.4.1.min.js"
       integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="

@@ -258,3 +258,11 @@ body{
 .feed-description-new{
   color: #3D5E61;
 }
+.load{
+  text-align: center;
+  margin: 100px auto 0;
+}
+.load img{
+  width: 100px;
+  height: 100px;
+}

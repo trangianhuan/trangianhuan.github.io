@@ -3,91 +3,37 @@
  * Saving button
  */
 const saveButton = document.getElementById('saveButton');
-/**
- * To initialize the Editor, create a new instance with configuration object
- * @see docs/installation.md for mode details
- */
-var optionEditor = {
-  /**
-   * Wrapper of Editor
-   */
-  holder: 'editorjs',
-  /**
-   * Tools list
-   */
-  tools: {
-    /**
-     * Each Tool is a Plugin. Pass them via 'class' option with necessary settings {@link docs/tools.md}
-     */
-    header: {
-      class: Header,
-      inlineToolbar: ['link'],
-      config: {
-        placeholder: 'Header'
-      },
-      shortcut: 'CMD+SHIFT+H'
-    },
-    /**
-     * Or pass class directly without any configuration
-     */
-    image: {
-      class: SimpleImage,
-      inlineToolbar: ['link'],
-    },
-    list: {
-      class: List,
-      inlineToolbar: true,
-      shortcut: 'CMD+SHIFT+L'
-    },
-    checklist: {
-      class: Checklist,
-      inlineToolbar: true,
-    },
-    quote: {
-      class: Quote,
-      inlineToolbar: true,
-      config: {
-        quotePlaceholder: 'Enter a quote',
-        captionPlaceholder: 'Quote\'s author',
-      },
-      shortcut: 'CMD+SHIFT+O'
-    },
-    warning: Warning,
-    marker: {
-      class:  Marker,
-      shortcut: 'CMD+SHIFT+M'
-    },
-    code: {
-      class:  CodeTool,
-    },
-    delimiter: Delimiter,
-    inlineCode: {
-      class: InlineCode,
-      shortcut: 'CMD+SHIFT+C'
-    },
-    linkTool: LinkTool,
-    embed: {
-      class:  Embed,
-      shortcut: 'CMD+SHIFT+E'
-    },
-    table: {
-      class: Table,
-      inlineToolbar: true,
-      shortcut: 'CMD+ALT+T'
-    },
-  },
-  data: {
-  },
-  onReady: function(){
-    //saveButton.click();
-  },
-  onChange: function() {
-    console.log('something changed');
-  }
-}
 
 if(document.getElementById('editorjs')){
-  var editor = new EditorJS(optionEditor);
+  //var editor = new EditorJS(optionEditor);
+    var toolbarOptions = [
+      ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+      ['blockquote', 'code-block'],
+
+      [{ 'header': 1 }, { 'header': 2 }],               // custom button values
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      [{ 'script': 'sub'}, { 'script': 'super' }],      // superscript/subscript
+      [{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent
+      [{ 'direction': 'rtl' }],                         // text direction
+
+      [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
+      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+
+      [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
+      [{ 'font': [] }],
+      [{ 'align': [] }],
+
+      ['clean']                                         // remove formatting button
+    ];
+
+  var quill = new Quill('#editorjs', {
+    modules: {
+      toolbar: toolbarOptions
+    },
+    placeholder: 'write note here..',
+    theme: 'snow'
+  });
+
 }
 
 /**
@@ -246,7 +192,6 @@ function createNotebook(name){
 firebase.auth().onAuthStateChanged(function(userLogin) {
   if (userLogin) {
     user = userLogin
-    getDataNote(user.email)
     initSetup()
   } else {
     window.location.href = '/login';

@@ -76,11 +76,11 @@ a,a:hover{
     overflow-y: auto;
 }
 
-#editorjs{
+.note-area{
     margin: 30px 40px;
     background-color: #fff;
     border-radius: 12px;
-    padding: 15px 50px;
+    padding: 30px;
 }
 .cdx-block {
     padding: .2em 0 !important;
@@ -160,4 +160,8 @@ a,a:hover{
 .ul-time{
     color: #666;
     font-size: 11px;
+}
+
+.ql-editor{
+    min-height: 400px;
 }
