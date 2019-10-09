@@ -22,6 +22,7 @@ if(document.getElementById('editorjs')){
       [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
       [{ 'font': [] }],
       [{ 'align': [] }],
+      ['link', 'image']
 
       ['clean']                                         // remove formatting button
     ];
@@ -34,17 +35,20 @@ if(document.getElementById('editorjs')){
     theme: 'snow'
   });
 
+  $('#editorjs').prepend('<div><input type="text" name="title" id="note_title" value="" placeholder="Title"></div>')
 }
 
 /**
  * Saving example
  */
 if(saveButton){
-    saveButton.addEventListener('click', function () {
-      editor.save().then((savedData) => {
-        createNote(document.getElementById('note_title').value || '', savedData.blocks)
-      });
-    });
+  saveButton.addEventListener('click', function () {
+    if($('#idHidden').val()){
+
+    } else {
+      createNote(document.getElementById('note_title').value || '', JSON.stringify(quill.getContents()))
+    }
+  });
 }
 
 
@@ -111,7 +115,6 @@ function renderNoteBooks(){
     strNoteBook += '<li data-id="' + noteBookIdx + '" class="notebook-item"><img width="16px" height="16px" src="/images/book.svg" style="padding-right: 5px"/>' + arrNoteBooks[noteBookIdx] + '<li>'
   }
   document.getElementById('notebook-content').innerHTML = strNoteBook
-  console.log('renderNoteBooks')
 }
 
 function renderNote(){
@@ -119,8 +122,8 @@ function renderNote(){
   for(noteIdx in arrNote){
     strNote += '<li class="ul-note_item" data-id="' + noteIdx + '">'
     strNote += '  <div class="ul-title">' + arrNote[noteIdx]['title'] + '</div>'
-    strNote += '  <div class="ul-content">' + arrNote[noteIdx]['content'][0]['data']['text'] + '</div>'
-    strNote += '  <div class="ul-time">' + arrNote[noteIdx]['time'] + '</div>'
+    strNote += '  <div class="ul-content">' + JSON.parse(arrNote[noteIdx]['content'])['ops'][0]['insert'] + '</div>'
+    strNote += '  <div class="ul-time">' + formatDate(arrNote[noteIdx]['time']) + '</div>'
     strNote += '</li>'
   }
   document.getElementById('ul-note').innerHTML = strNote
@@ -128,28 +131,38 @@ function renderNote(){
 
 $('body').on('click', '.note-pin-item', function(e){
   var idNote = $(this).data('id')
-  optionEditor.data.blocks = arrNotePin[idNote]['content']
-  optionEditor.data.time = 1569838207510
-  optionEditor.data.version = '2.15.1'
-  editor.destroy()
-  $('#editorjs').append('<div><input type="text" name="title" id="note_title" value="' + arrNotePin[idNote]['title'] + '" placeholder="Title"></div>')
+  // optionEditor.data.blocks = arrNotePin[idNote]['content']
+  // optionEditor.data.time = 1569838207510
+  // optionEditor.data.version = '2.15.1'
+  //editor.destroy()
+  //$('#editorjs').append('<div><input type="text" name="title" id="note_title" value="' + arrNotePin[idNote]['title'] + '" placeholder="Title"></div>')
 
-  editor = new EditorJS(optionEditor);
+  //editor = new EditorJS(optionEditor);
+  setDataForQuill(idNote, arrNotePin)
 })
 
+function setDataForQuill(idNote, dataset){
+  $('#note_title').val(dataset[idNote]['title'])
+  $('#idHidden').val(idNote)
+  $('#notebooks_input').val(dataset[idNote]['notebook'])
+  $('#note-pin').prop('checked', dataset[idNote]['pin'] || false)
+  quill.setContents(JSON.parse(dataset[idNote]['content']));
+}
+
 $('body').on('click', '.note-wrap.all', function(e){
-  $('.list-note').toggle()
+  $('.list-note').toggle('slide')
 })
 
 $('body').on('click', '.ul-note_item', function(e){
   var idNote = $(this).data('id')
-  optionEditor.data.blocks = arrNote[idNote]['content']
-  optionEditor.data.time = 1569838207510
-  optionEditor.data.version = '2.15.1'
-  editor.destroy()
-  $('#editorjs').append('<div><input type="text" name="title" id="note_title" value="' + arrNote[idNote]['title'] + '" placeholder="Title"></div>')
+  // optionEditor.data.blocks = arrNote[idNote]['content']
+  // optionEditor.data.time = 1569838207510
+  // optionEditor.data.version = '2.15.1'
+  // editor.destroy()
+  //$('#editorjs').append('<div><input type="text" name="title" id="note_title" value="' + arrNote[idNote]['title'] + '" placeholder="Title"></div>')
 
-  editor = new EditorJS(optionEditor);
+  //editor = new EditorJS(optionEditor);
+  setDataForQuill(idNote, arrNote)
 })
 
 
@@ -163,14 +176,30 @@ function renderNotePin(){
 }
 
 function createNote(title, content, notebook){
-  notebook = notebook || ''
+  notebook = notebook || $('#notebooks_input').val()
   if(user.email){
     db.collection('note').add({
       title: title || 'Untitled',
       content: content,
       email: user.email,
       notebook: notebook,
-      pin: false,
+      time: new Date().getTime(),
+      pin: $('#note-pin').is(':checked'),
+    })
+  } else {
+    console.log('cannot create note, please login')
+  }
+}
+
+function updateNote(title, content, notebook){
+  notebook = notebook || $('#notebooks_input').val()
+  if(user.email){
+    db.collection('note').doc($('#idHidden').val()).set({
+      title: title || 'Untitled',
+      content: content,
+      email: user.email,
+      notebook: notebook,
+      pin: $('#note-pin').is(':checked'),
     })
   } else {
     console.log('cannot create note, please login')
@@ -287,4 +316,37 @@ function onlyUnique(value, index, self) {
   if(!value) return false;
 
   return self.indexOf(value) === index;
+}
+function formatDate(datetime){
+    if(!datetime) return '';
+
+    var dateParse = new Date(datetime);
+    var dd = dateParse.getDate();
+    var mm = dateParse.getMonth()+1;
+    var yyyy = dateParse.getFullYear();
+    var hh = dateParse.getHours();
+    var minus = dateParse.getMinutes();
+    var ss = dateParse.getSeconds();
+
+    if(dd<10){
+        dd='0'+dd
+    }
+
+    if(mm<10){
+        mm='0'+mm
+    }
+
+    if(hh<10){
+        hh='0'+hh
+    }
+
+    if(minus<10){
+        minus='0'+minus
+    }
+
+    if(ss<10){
+        ss='0'+ss
+    }
+
+    return dd+'/'+mm+'/'+yyyy + ' ' + hh + ':' + minus + ':' + ss;
 }

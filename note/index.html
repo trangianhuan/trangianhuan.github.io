@@ -3,6 +3,7 @@
 <head>
     <title>GOSUK-NOTE</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
+    <link rel="icon" href="/images/astronaut.png">
     <link href="/note/css/quill.snow.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="/note/css/app.css">
 </head>
@@ -23,6 +24,7 @@
 
             <div class="note-wrap"><img width="18px" height="18px" src="/images/notebooks.svg" style="padding-right: 5px"/> NOTEBOOK</div>
             <ul id="notebook-content">
+                <img class="load-note" src="/images/load.gif" />
             </ul>
         </div>
         <div class="list-note" style="display: none;">
@@ -34,8 +36,18 @@
                 <div class="btn btn-save" id="saveButton">SAVE</div>
             </div>
             <div class="note-area">
-                <div id="editorjs">
-                    <div><input type="text" name="title" id="note_title" placeholder="Title"></div>
+                <div class="note_input_group">
+                    <input type="hidden" id="idHidden">
+                    <input type="text" class="border_none notebooks_input" placeholder="Input notebooks" value="" id="notebooks_input" />
+                    <div class="pin">
+                        <input type="checkbox" id="note-pin" name="note-pin" value="true">
+                        <label for="note-pin">PIN</label>
+                    </div>
+                </div>
+                <div>
+                    <div id="editorjs">
+                        <div><input type="text" name="title" id="note_title" placeholder="Title"></div>
+                    </div>
                 </div>
             </div>
         </div>

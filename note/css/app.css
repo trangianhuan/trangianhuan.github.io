@@ -105,6 +105,8 @@ a,a:hover{
     font-size: 22px;
     outline: none;
     color: #666666;
+    width: 100%;
+    padding: 12px 15px 0;
 }
 #note_title:-internal-autofill-selected {
     background-color: #fff !important;
@@ -162,6 +164,75 @@ a,a:hover{
     font-size: 11px;
 }
 
+.note_input_group{
+    padding: 0 0 15px
+}
+
+.border_none{
+    border: none;
+    border-bottom: 1px solid;
+    outline: none;
+}
+.notebooks_input{
+    color: #F98B41;
+}
+.pin{
+    display: inline-block;
+    padding-left: 30px;
+}
+.load-note{
+    width: 32px;
+    height: 32px;
+    padding: 10px calc(50% - 16px);
+}
 .ql-editor{
     min-height: 400px;
+}
+
+input[type=checkbox] + label {
+  display: block;
+  margin: 0.2em;
+  cursor: pointer;
+  padding: 0.2em;
+  color: #F98B41;
+}
+
+input[type=checkbox] {
+  display: none;
+}
+
+input[type=checkbox] + label:before {
+  content: "\2714";
+  border: 0.1em solid #F98B41;
+  border-radius: 0.2em;
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  padding-left: 0.2em;
+  padding-bottom: 0.3em;
+  margin-right: 0.2em;
+  vertical-align: bottom;
+  color: transparent;
+  transition: .2s;
+}
+
+input[type=checkbox] + label:active:before {
+  transform: scale(0);
+}
+
+input[type=checkbox]:checked + label:before {
+  background-color: MediumSeaGreen;
+  border-color: MediumSeaGreen;
+  color: #fff;
+}
+
+input[type=checkbox]:disabled + label:before {
+  transform: scale(1);
+  border-color: #aaa;
+}
+
+input[type=checkbox]:checked:disabled + label:before {
+  transform: scale(1);
+  background-color: #bfb;
+  border-color: #bfb;
 }
