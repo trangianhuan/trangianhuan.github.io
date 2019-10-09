@@ -70,7 +70,8 @@ a,a:hover{
     padding:0 15px;
 }
 .content{
-    background-color: #eef5fa;
+    background-color: #f7f7f7;
+    /*background-color: #eef5fa;*/
     height: 100%;
     width: 100%;
     overflow-y: auto;
@@ -112,7 +113,7 @@ a,a:hover{
     background-color: #fff !important;
     background-image: none !important;
 }
-.note-pin-item{
+.note-pin-item, .notebook-item{
     padding: 2px 15px;
     cursor: pointer;
     display: flex;
@@ -188,6 +189,45 @@ a,a:hover{
 .ql-editor{
     min-height: 400px;
 }
+
+/**************Search****************/
+.search {
+  width: 100%;
+  display: flex;
+}
+
+.searchTerm {
+  border: 3px solid #8CBBB2;
+  border-right: none;
+  padding: 5px;
+  height: 15px;
+  border-radius: 5px 0 0 5px;
+  outline: none;
+  color: #9DBFAF;
+}
+
+.searchTerm::placeholder, .searchTerm:focus{
+  color: #F98B41;
+}
+
+.searchButton {
+  width: 40px;
+  height: 31px;
+  border: 1px solid #8CBBB2;
+  background: #8CBBB2;
+  text-align: center;
+  color: #fff;
+  border-radius: 0 5px 5px 0;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+/*Resize the wrap to see the search bar change!*/
+.wrap{
+    padding: 15px 15px 30px 15px;
+    width: calc(100% - 30px);
+}
+/************************************/
 
 input[type=checkbox] + label {
   display: block;

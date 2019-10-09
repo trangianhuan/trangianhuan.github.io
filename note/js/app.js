@@ -70,6 +70,8 @@ var user;
 var arrNote = [];
 var arrNotePin = [];
 var arrNoteBooks = [];
+var arrSearch = [];
+var fuse;
 
 function addCollectionInit(collectionName){
   //var batch = db.batch();
@@ -87,16 +89,19 @@ function addCollectionInit(collectionName){
 function initSetup(){
   db.collection('note').where('email', '==', user.email).onSnapshot(function(snapshot){
     snapshot.docChanges().forEach(function(change) {
+      var data = change.doc.data()
       if (change.type === "added") {
-        if(change.doc.data().pin){
-          arrNotePin[change.doc.id] = change.doc.data()
+        if(data.pin){
+          arrNotePin[change.doc.id] = data
         }else{
-          arrNote[change.doc.id] = change.doc.data()
+          arrNote[change.doc.id] = data
         }
-        arrNoteBooks.push(change.doc.data().notebook)
+        arrNoteBooks.push(data.notebook)
+        data['id'] = change.doc.id
+        arrSearch.push(data)
       }
       if (change.type === "modified") {
-        arrNote[change.doc.id] = change.doc.data()
+        arrNote[change.doc.id] = data
       }
       if (change.type === "removed") {
         delete arrNote[change.doc.id]
@@ -105,7 +110,23 @@ function initSetup(){
     renderNote()
     renderNotePin()
     renderNoteBooks()
+    initSearch()
   })
+}
+
+function initSearch(){
+  var options = {
+    shouldSort: true,
+    threshold: 0.3,
+    location: 0,
+    distance: 100,
+    maxPatternLength: 32,
+    minMatchCharLength: 2,
+    keys: [
+      "title","content"
+    ]
+  };
+  fuse = new Fuse(arrSearch, options);
 }
 
 function renderNoteBooks(){
@@ -165,7 +186,14 @@ $('body').on('click', '.ul-note_item', function(e){
   setDataForQuill(idNote, arrNote)
 })
 
-
+function searchItem(key){
+  console.log(fuse.search(key))
+}
+$('body').on('keyup', '#search-input', function(e){
+  var keySearch = $(this).val();
+  console.log(keySearch)
+  debounce(searchItem(keySearch), 2000)
+})
 
 function renderNotePin(){
   var strNote = '';

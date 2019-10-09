@@ -83,7 +83,7 @@ function renderArray(arrData){
     feedNew += '        <div class="feed-title-new">' + arrData[index].title + '</div>'
     feedNew += '        <div class="feed-description-new">' + arrData[index].description.replace(/<[^>]*>?/gm, '') + '</div>'
     feedNew += '      </div>'
-    feedNew += '      <div class="feed-publish-new">' + arrData[index].public_at + '</div>'
+    feedNew += '      <div class="feed-publish-new">' + formatDate(arrData[index].public_at) + '</div>'
     feedNew += '    </div>'
     feedNew += '  </div>'
   }
@@ -129,10 +129,10 @@ function bindData(site, data){
         feed += '  <span class="feed-flag">NEW</span>'
       }
     }
-    feed += '  <a href="' + feedData.link + '" class="feed-title">' + feedData.title + '</a>'
+    feed += '  <a href="' + feedData.link + '" class="feed-title"  target="_blank">' + feedData.title + '</a>'
     //feed += '  <div class="feed-content">' + feedData.description.replace(/<img[^>]*>/g,"") + '</div>'
     if(typeof feedData.public_at != 'undefined'){
-      feed += '  <span class="feed-publish">' + feedData.public_at + '</span>'
+      feed += '  <span class="feed-publish">' + formatDate(feedData.public_at) + '</span>'
     }
     feed += '</div>'
     $('#'+site).append(feed)
@@ -174,7 +174,7 @@ function initPublicDate()
         // }
         if(typeof data.public_at == 'string'){
           var sfRef = db.collection("feed").doc(doc.id);
-          batch.update(sfRef, {"public_at": formatDate(data.public_at) });
+          batch.update(sfRef, {"public_at": getEpochTime(data.public_at) });
         }
 
       });
@@ -215,4 +215,8 @@ function formatDate(datetime){
     }
 
     return dd+'/'+mm+'/'+yyyy + ' ' + hh + ':' + minus + ':' + ss;
+}
+
+function getEpochTime(datetime){
+  return new Date(datetime).getTime();
 }
