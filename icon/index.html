@@ -1,1 +1,44 @@
-index.html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GOSUK-ICON</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
+    <link rel="icon" href="/images/astronaut.png">
+    <link rel="stylesheet" type="text/css" href="/note/css/app.css">
+    <link rel="stylesheet" type="text/css" href="/feed/css/app.css">
+</head>
+<body>
+    <div class="header">
+        <a class="btn active" href="/icon">Icon</a>
+        <a class="btn" href="/feed">Feed</a>
+        <a class="btn" href="/vocabulary">Vocabulary</a>
+        <a class="btn" href="/note">Note</a>
+    </div>
+    <div class="content-area">
+        <div class="content icon">
+            <div class="feed-control" style="display: flex; border-bottom: 1px solid #ddd; margin-bottom: 30px; position: relative;">
+                <div id="collap-search">
+                </div>
+                <div class="control-item">
+                    <div class="control-item_header">Search</div>
+                    <input type="text" name="search" class="control-item_input" placeholder="" />
+                </div>
+                <div class="pin">
+                    <input type="checkbox" id="check-all" name="check-all" value="true">
+                    <label for="check-all">CHECK ALL</label>
+                </div>
+                <div class="pin" id="icon-folder">
+                </div>
+            </div>
+            <div class="box icon">
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@12.1.0/dist/lazyload.min.js"></script>
+    <script src="/js/common.js"></script>
+    <script src="/icon/js/icon.js"></script>
+    <script src="/icon/js/app.js"></script>
+</body>
+</html>

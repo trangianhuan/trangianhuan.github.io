@@ -76,7 +76,47 @@ a,a:hover{
     width: 100%;
     overflow-y: auto;
 }
+.content.icon{
+    display: flex;
+    flex-direction: column;
+}
+.box.icon{
+    overflow: auto;
+    display: flex;
+    flex-wrap: wrap;
+}
+.title-icon{
+    width: 100%;
+    text-transform: uppercase;
+    padding: 15px;
+    text-align: center;
+    font-size: 20px;
+    color: #E85B27;
+}
+.icon-item{
+    padding: 15px;
+}
+.icon-item img{
+    width: 48px;
+    height: 48px;
+}
+#collap-search{
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    background: url(/icon/awesome-icons/svg/chevron-arrow-down.svg) no-repeat;
+    filter: invert(79%) sepia(19%) saturate(396%) hue-rotate(119deg) brightness(88%) contrast(87%);
+    /* background-color: red; */
+    padding: 8px;
+    background-position: center;
+    background-size: 20px;
+    right: 30px;
+    cursor: pointer;
+    border: 1px solid;
+}
+#collap-search:hover{
 
+}
 .note-area{
     margin: 30px 40px;
     background-color: #fff;
@@ -197,6 +237,7 @@ a,a:hover{
 }
 
 .searchTerm {
+  width: 100%;
   border: 3px solid #8CBBB2;
   border-right: none;
   padding: 5px;
@@ -211,6 +252,7 @@ a,a:hover{
 }
 
 .searchButton {
+  display: flex;
   width: 40px;
   height: 31px;
   border: 1px solid #8CBBB2;
@@ -276,3 +318,4 @@ input[type=checkbox]:checked:disabled + label:before {
   background-color: #bfb;
   border-color: #bfb;
 }
+
