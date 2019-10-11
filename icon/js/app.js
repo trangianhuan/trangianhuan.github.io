@@ -22,6 +22,10 @@ var lazyLoadInstance = new LazyLoad({
     // ... more custom settings?
 });
 
+$('body').on('click', '#collap-search', function(e){
+    $('.feed-control').toggleClass('active')
+})
+
 function renderArrayPack(){
     arrPackIcon.forEach(function(e,i){
         stringIconItem += '<td>'

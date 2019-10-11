@@ -71,7 +71,9 @@ var arrNote = [];
 var arrNotePin = [];
 var arrNoteBooks = [];
 var arrSearch = [];
+var arrResultSearch = [];
 var fuse;
+var currentNotebook;
 
 function addCollectionInit(collectionName){
   //var batch = db.batch();
@@ -96,7 +98,10 @@ function initSetup(){
         }else{
           arrNote[change.doc.id] = data
         }
-        arrNoteBooks.push(data.notebook)
+        if(data.notebook){
+          arrNoteBooks[data.notebook] = arrNoteBooks[data.notebook] || []
+          arrNoteBooks[data.notebook].push(data)
+        }
         data['id'] = change.doc.id
         arrSearch.push(data)
       }
@@ -107,7 +112,7 @@ function initSetup(){
         delete arrNote[change.doc.id]
       }
     });
-    renderNote()
+    renderNote('ul-note',arrNote)
     renderNotePin()
     renderNoteBooks()
     initSearch()
@@ -130,24 +135,36 @@ function initSearch(){
 }
 
 function renderNoteBooks(){
-  arrNoteBooks = arrNoteBooks.filter(onlyUnique);
+  arrNoteBooksName = Object.keys(arrNoteBooks)
+  arrNoteBooksName = arrNoteBooksName.filter(onlyUnique);
+
   var strNoteBook = '';
-  for(noteBookIdx in arrNoteBooks){
-    strNoteBook += '<li data-id="' + noteBookIdx + '" class="notebook-item"><img width="16px" height="16px" src="/images/book.svg" style="padding-right: 5px"/>' + arrNoteBooks[noteBookIdx] + '<li>'
+  for(noteBookIdx in arrNoteBooksName){
+    strNoteBook += '<li data-note-name="' + arrNoteBooksName[noteBookIdx] + '" class="notebook-item"><img width="16px" height="16px" src="/images/book.svg" style="padding-right: 5px"/>' + arrNoteBooksName[noteBookIdx] + '<li>'
   }
   document.getElementById('notebook-content').innerHTML = strNoteBook
 }
 
-function renderNote(){
-  var strNote = '';
-  for(noteIdx in arrNote){
-    strNote += '<li class="ul-note_item" data-id="' + noteIdx + '">'
-    strNote += '  <div class="ul-title">' + arrNote[noteIdx]['title'] + '</div>'
-    strNote += '  <div class="ul-content">' + JSON.parse(arrNote[noteIdx]['content'])['ops'][0]['insert'] + '</div>'
-    strNote += '  <div class="ul-time">' + formatDate(arrNote[noteIdx]['time']) + '</div>'
+
+function renderNote(idElmentRender, arrRender, isSearch){
+  isSearch = isSearch ? '--' + isSearch : ''
+  if(isSearch){
+    var strNote = '<li>' + arrRender.length + ' notes found</li>';
+  }else{
+    var strNote = '';
+  }
+  for(noteIdx in arrRender){
+    var keyNote = noteIdx
+    if(isSearch){
+      keyNote = arrRender[noteIdx]['id']
+    }
+    strNote += '<li class="ul-note_item'+ isSearch +'" data-id="' + keyNote + '">'
+    strNote += '  <div class="ul-title">' + arrRender[noteIdx]['title'] + '</div>'
+    strNote += '  <div class="ul-content">' + JSON.parse(arrRender[noteIdx]['content'])['ops'][0]['insert'] + '</div>'
+    strNote += '  <div class="ul-time">' + formatDate(arrRender[noteIdx]['time']) + '</div>'
     strNote += '</li>'
   }
-  document.getElementById('ul-note').innerHTML = strNote
+  document.getElementById(idElmentRender).innerHTML = strNote
 }
 
 $('body').on('click', '.note-pin-item', function(e){
@@ -162,37 +179,58 @@ $('body').on('click', '.note-pin-item', function(e){
   setDataForQuill(idNote, arrNotePin)
 })
 
-function setDataForQuill(idNote, dataset){
-  $('#note_title').val(dataset[idNote]['title'])
+function setDataForQuill(idNote, dataset, isSearch){
+  isSearch = isSearch || ''
+  if(isSearch){
+    dataset = dataset.find(x => x.id === idNote)
+  } else {
+    dataset = dataset[idNote]
+  }
+  $('#note_title').val(dataset['title'])
   $('#idHidden').val(idNote)
-  $('#notebooks_input').val(dataset[idNote]['notebook'])
-  $('#note-pin').prop('checked', dataset[idNote]['pin'] || false)
-  quill.setContents(JSON.parse(dataset[idNote]['content']));
+  $('#notebooks_input').val(dataset['notebook'])
+  $('#note-pin').prop('checked', dataset['pin'] || false)
+  quill.setContents(JSON.parse(dataset['content']));
 }
 
 $('body').on('click', '.note-wrap.all', function(e){
-  $('.list-note').toggle('slide')
+  renderNote('ul-note', arrNote)
+  $('.list-note').show()
+  $('.list-note-search').hide()
+})
+
+$('body').on('click', '.notebook-item', function(e){
+  currentNotebook = $(this).data('note-name')
+  renderNote('ul-note', arrNoteBooks[currentNotebook], 'nb')
+  $('.list-note').show()
+  $('.list-note-search').hide()
 })
 
 $('body').on('click', '.ul-note_item', function(e){
   var idNote = $(this).data('id')
-  // optionEditor.data.blocks = arrNote[idNote]['content']
-  // optionEditor.data.time = 1569838207510
-  // optionEditor.data.version = '2.15.1'
-  // editor.destroy()
-  //$('#editorjs').append('<div><input type="text" name="title" id="note_title" value="' + arrNote[idNote]['title'] + '" placeholder="Title"></div>')
-
-  //editor = new EditorJS(optionEditor);
   setDataForQuill(idNote, arrNote)
 })
 
+$('body').on('click', '.ul-note_item--search', function(e){
+  var idNote = $(this).data('id')
+  setDataForQuill(idNote, arrResultSearch, 'search')
+})
+
+$('body').on('click', '.ul-note_item--nb', function(e){
+  var idNote = $(this).data('id')
+  setDataForQuill(idNote, arrNoteBooks[currentNotebook], 'nb')
+})
+
 function searchItem(key){
-  console.log(fuse.search(key))
+  arrResultSearch = fuse.search(key)
+  renderNote('ul-note-search', arrResultSearch, 'search')
+  $('.list-note').hide()
+  $('.list-note-search').show()
 }
+
 $('body').on('keyup', '#search-input', function(e){
   var keySearch = $(this).val();
-  console.log(keySearch)
-  debounce(searchItem(keySearch), 2000)
+  debounce(searchItem, 400)(keySearch)
 })
 
 function renderNotePin(){
@@ -307,74 +345,4 @@ function signInWithEmailAndPassword(email, password){
 
 function logout(){
   firebase.auth().signOut()
-}
-
-function stringToSlug(str)
-{
-  str = str || ''
-  var slug = str.toLowerCase();
-
-  slug = slug.replace(/á|à|ả|ạ|ã|ă|ắ|ằ|ẳ|ẵ|ặ|â|ấ|ầ|ẩ|ẫ|ậ/gi, 'a');
-  slug = slug.replace(/é|è|ẻ|ẽ|ẹ|ê|ế|ề|ể|ễ|ệ/gi, 'e');
-  slug = slug.replace(/i|í|ì|ỉ|ĩ|ị/gi, 'i');
-  slug = slug.replace(/ó|ò|ỏ|õ|ọ|ô|ố|ồ|ổ|ỗ|ộ|ơ|ớ|ờ|ở|ỡ|ợ/gi, 'o');
-  slug = slug.replace(/ú|ù|ủ|ũ|ụ|ư|ứ|ừ|ử|ữ|ự/gi, 'u');
-  slug = slug.replace(/ý|ỳ|ỷ|ỹ|ỵ/gi, 'y');
-  slug = slug.replace(/đ/gi, 'd');
-
-  slug = slug.replace(/\`|\~|\!|\@|\#|\||\$|\%|\^|\&|\*|\(|\)|\+|\=|\,|\.|\/|\?|\>|\<|\'|\"|\:|\;|_/gi, '');
-
-  slug = slug.replace(/ /gi, "-");
-  slug = slug.replace(/\-\-\-\-\-/gi, '-');
-  slug = slug.replace(/\-\-\-\-/gi, '-');
-  slug = slug.replace(/\-\-\-/gi, '-');
-  slug = slug.replace(/\-\-/gi, '-');
-
-  slug = '@' + slug + '@';
-  slug = slug.replace(/\@\-|\-\@|\@/gi, '');
-
-  return slug;
-}
-
-function getrandom(){
-    return Math.random().toString(32).substring(2, 5) + Math.random().toString(32).substring(2, 5);
-}
-
-function onlyUnique(value, index, self) {
-  if(!value) return false;
-
-  return self.indexOf(value) === index;
-}
-function formatDate(datetime){
-    if(!datetime) return '';
-
-    var dateParse = new Date(datetime);
-    var dd = dateParse.getDate();
-    var mm = dateParse.getMonth()+1;
-    var yyyy = dateParse.getFullYear();
-    var hh = dateParse.getHours();
-    var minus = dateParse.getMinutes();
-    var ss = dateParse.getSeconds();
-
-    if(dd<10){
-        dd='0'+dd
-    }
-
-    if(mm<10){
-        mm='0'+mm
-    }
-
-    if(hh<10){
-        hh='0'+hh
-    }
-
-    if(minus<10){
-        minus='0'+minus
-    }
-
-    if(ss<10){
-        ss='0'+ss
-    }
-
-    return dd+'/'+mm+'/'+yyyy + ' ' + hh + ':' + minus + ':' + ss;
 }

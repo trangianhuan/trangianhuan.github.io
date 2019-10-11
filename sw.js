@@ -1,4 +1,4 @@
-const VERSION = 1;
+const VERSION = 3;
 const CACHE_NAME = 'gosuk-v' + VERSION;
 const urlsToCache = [
   '/js/jquery-3.4.1.min.js',
@@ -7,7 +7,7 @@ const urlsToCache = [
   '/js/firebase-app.js',
   '/js/firebase-firestore.js',
   '/js/firebase-auth.js',
-  '/js/common.js',
+  //'/js/common.js',
   '/js/fuse.js',
 ];
 

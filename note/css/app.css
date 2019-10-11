@@ -35,7 +35,20 @@ a,a:hover{
 }
 .btn-group{
     text-align: right;
-    padding: 20px 20px 0;
+    padding: 20px 20px 0 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.saved{
+    display: flex;
+    align-items: center;
+    font-size: 1.5rem;
+}
+.saved img{
+    width: 20px;
+    height: 20px;
+    padding: 0 10px;
 }
 .btn{
     background-color: #FDF5D7;
@@ -100,7 +113,7 @@ a,a:hover{
     width: 48px;
     height: 48px;
 }
-#collap-search{
+.feed-control #collap-search{
     position: absolute;
     width: 18px;
     height: 18px;
@@ -114,6 +127,10 @@ a,a:hover{
     cursor: pointer;
     border: 1px solid;
 }
+.feed-control.active #collap-search{
+    background-image: url(/icon/awesome-icons/svg/chevron-arrow-up.svg);
+}
+
 #collap-search:hover{
 
 }
@@ -172,17 +189,17 @@ a,a:hover{
     top: 7px;
     background-color: #F28241;
 }
-.list-note{
+.list-note, .list-note-search{
     overflow-y: auto;
     min-width: 250px;
     width: 250px;
     background: #f8eee6;
     color: #8CBBB2;
 }
-#ul-note{
+#ul-note, #ul-note-search{
     padding: 15px;
 }
-.ul-note_item{
+.ul-note_item, .ul-note_item--search, .ul-note_item--nb{
     cursor: pointer;
     border-bottom: 1px solid #ddd;
     padding: 5px 15px;
@@ -228,6 +245,10 @@ a,a:hover{
 }
 .ql-editor{
     min-height: 400px;
+}
+.ql-snow .ql-editor pre.ql-syntax{
+    background-color: #ddd;
+    color: #666;
 }
 
 /**************Search****************/
