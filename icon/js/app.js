@@ -11,7 +11,7 @@ $('#check-all').on('change', '', function(){
 
 renderArrayPack()
 var dataR = [ awesome_icons, chemistry, contact_us, countrys_flags, ecommerce_set, hacker, interface, logistics_delivery,
-    //miscellaneous_elements, multimedia_collection, phone_icons, social_media_logos, social_network_logo_collection, vector_editing, vector_editing2, material_design, essential_compilation
+    miscellaneous_elements, multimedia_collection, phone_icons, social_media_logos, social_network_logo_collection, vector_editing, vector_editing2, material_design, essential_compilation
 ]
 dataR.forEach(e => {
     renderIcon(e)
@@ -33,7 +33,6 @@ function renderArrayPack(){
         stringIconItem += '  <label for="' + e + '">' + e + '</label>'
         stringIconItem += '</td>'
         if((i+1)%itemEveryRow == 0){
-            console.log('i:', i)
             stringIconFolder += '<tr>' + stringIconItem + '</tr>'
             stringIconItem = ''
         }

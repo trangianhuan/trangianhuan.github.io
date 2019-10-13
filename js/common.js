@@ -2,7 +2,7 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
     navigator.serviceWorker.register('/sw.js').then(function(registration) {
       // Registration was successful
-      console.log('ServiceWorker registration successful with scope: ', registration.scope);
+      console.log('ServiceWorker registration successful');
     }, function(err) {
       // registration failed :(
       console.log('ServiceWorker registration failed: ', err);
@@ -10,15 +10,21 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-window.timeoutDebounce = null
-function debounce(func, wait = 500) {
-  return function(...args) {
-    clearTimeout(timeoutDebounce);
-    timeoutDebounce = setTimeout(() => {
-      func.apply(this, args);
-    }, wait);
+function debounce(func, wait) {
+  var timeout;
+
+  return function() {
+    var context = this,
+        args = arguments;
+
+    var executeFunction = function() {
+      func.apply(context, args);
+    };
+
+    clearTimeout(timeout);
+    timeout = setTimeout(executeFunction, wait);
   };
-}
+};
 
 function stringToSlug(str){
   str = str || ''

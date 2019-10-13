@@ -36,7 +36,31 @@ if(document.getElementById('editorjs')){
   });
 
   $('#editorjs').prepend('<div><input type="text" name="title" id="note_title" value="" placeholder="Title"></div>')
+
+  var callDebounceQuillChange = _.debounce(function(title, content){
+    updateNote(title, JSON.stringify(content))
+  }, 2000);
+
+  quill.on('text-change', function(delta, oldDelta, source) {
+    if($('#idHidden').val() && source == 'user'){
+      setImageMess('/images/code.gif', 40, 30, 'Dữ liệu note đang thay đổi...')
+      $('.saved').show()
+      callDebounceQuillChange(document.getElementById('note_title').value || '', quill.getContents())
+    }
+  });
+
+  function setImageMess(src, w, h, mess){
+    if(mess){
+      $('#mess-note').html(mess)
+    }
+    $('#image-mess-note')
+        .prop('src', src)
+        .prop('width', w)
+        .prop('height', h)
+  }
+
 }
+
 
 /**
  * Saving example
@@ -44,7 +68,7 @@ if(document.getElementById('editorjs')){
 if(saveButton){
   saveButton.addEventListener('click', function () {
     if($('#idHidden').val()){
-
+      updateNote(document.getElementById('note_title').value || '', JSON.stringify(quill.getContents()))
     } else {
       createNote(document.getElementById('note_title').value || '', JSON.stringify(quill.getContents()))
     }
@@ -106,16 +130,83 @@ function initSetup(){
         arrSearch.push(data)
       }
       if (change.type === "modified") {
-        arrNote[change.doc.id] = data
+        if(typeof arrNote[change.doc.id] != 'undefined'){
+          arrNote[change.doc.id] = data
+        }
+        if(typeof arrNotePin[change.doc.id] != 'undefined'){
+          arrNotePin[change.doc.id] = data
+        }
+
+        data['id'] = change.doc.id
+        var isExistsNotebook = false
+        for(var arNB in arrNoteBooks){
+          var noteBooks = arrNoteBooks[arNB].find(x => x.id === change.doc.id)
+          if(noteBooks){
+            isExistsNotebook = true
+            var idxNoteBook = arrNoteBooks[arNB].findIndex(x => x.id === change.doc.id)
+            if(idxNoteBook >= 0){
+              if(noteBooks.notebook == data.notebook){
+                  arrNoteBooks[arNB][idxNoteBook] = data
+              } else {
+                arrNoteBooks[arNB].splice(idxNoteBook, 1)
+                if(arrNoteBooks[arNB].length == 0){
+                  delete arrNoteBooks[arNB]
+                }
+                arrNoteBooks[data.notebook] = arrNoteBooks[data.notebook] || []
+                arrNoteBooks[data.notebook].push(data)
+              }
+            }// end idxnotebook >= 0
+          }
+        }
+
+        if(!isExistsNotebook){
+          arrNoteBooks[data.notebook] = arrNoteBooks[data.notebook] || []
+          arrNoteBooks[data.notebook].push(data)
+        }
+
+        var indx = arrSearch.findIndex(x => x.id === change.doc.id)
+        if(indx >= 0){
+          arrSearch[indx] = data
+        }
       }
+
       if (change.type === "removed") {
-        delete arrNote[change.doc.id]
+        if(typeof arrNote[change.doc.id] != 'undefined'){
+          delete arrNote[change.doc.id]
+        }
+        if(typeof arrNotePin[change.doc.id] != 'undefined'){
+          delete arrNotePin[change.doc.id]
+        }
+        var indx = arrSearch.findIndex(x => x.id === change.doc.id)
+        if(indx >= 0){
+          delete arrSearch[indx]
+        }
+        for(var arNB in arrNoteBooks){
+          var noteBooks = arrNoteBooks[arNB].find(x => x.id === change.doc.id)
+          if(noteBooks){
+            var idxNoteBook = arrNoteBooks[arNB].findIndex(x => x.id === change.doc.id)
+            if(idxNoteBook >= 0){
+              if(arrNoteBooks[arNB].length == 1){
+                console.log('step 1', arrNoteBooks[arNB])
+                delete arrNoteBooks[arNB]
+              } else {
+                console.log('step 2', arrNoteBooks[arNB][idxNoteBook])
+                delete arrNoteBooks[arNB][idxNoteBook]
+              }
+            }// end idxnotebook >= 0
+          }
+        }
+
       }
     });
-    renderNote('ul-note',arrNote)
-    renderNotePin()
-    renderNoteBooks()
-    initSearch()
+
+    setTimeout(function(){
+      renderNote('ul-note',arrNote)
+      renderNotePin()
+      renderNoteBooks()
+      initSearch()
+    }, 10)
+
   })
 }
 
@@ -137,6 +228,11 @@ function initSearch(){
 function renderNoteBooks(){
   arrNoteBooksName = Object.keys(arrNoteBooks)
   arrNoteBooksName = arrNoteBooksName.filter(onlyUnique);
+
+  //js sugest
+  $("#notebooks_input").autocomplete({
+      source: arrNoteBooksName
+  });
 
   var strNoteBook = '';
   for(noteBookIdx in arrNoteBooksName){
@@ -176,7 +272,14 @@ $('body').on('click', '.note-pin-item', function(e){
   //$('#editorjs').append('<div><input type="text" name="title" id="note_title" value="' + arrNotePin[idNote]['title'] + '" placeholder="Title"></div>')
 
   //editor = new EditorJS(optionEditor);
+  $('.list-note').hide()
+  $('.list-note-search').hide()
   setDataForQuill(idNote, arrNotePin)
+})
+
+$('body').on('click', '.note-pin-item, .ul-note_item, .ul-note_item--nb', function(e){
+  $('.btn-save').hide()
+  $('.saved').hide()
 })
 
 function setDataForQuill(idNote, dataset, isSearch){
@@ -209,16 +312,44 @@ $('body').on('click', '.notebook-item', function(e){
 $('body').on('click', '.ul-note_item', function(e){
   var idNote = $(this).data('id')
   setDataForQuill(idNote, arrNote)
+  hiddenImg()
 })
 
 $('body').on('click', '.ul-note_item--search', function(e){
   var idNote = $(this).data('id')
   setDataForQuill(idNote, arrResultSearch, 'search')
+  hiddenImg()
 })
 
 $('body').on('click', '.ul-note_item--nb', function(e){
   var idNote = $(this).data('id')
   setDataForQuill(idNote, arrNoteBooks[currentNotebook], 'nb')
+  hiddenImg()
+})
+
+$('body').on('click', '.dropdown-item.create', function(e){
+  $('#idHidden').val('')
+  $('#note_title').val('')
+  $('#notebooks_input').val('')
+  $('#note-pin').prop('checked', false)
+  $('.saved').show()
+  $('.btn-save').show()
+  quill.setContents('')
+})
+
+$('body').on('click', '.dropdown-item.del', function(e){
+  Swal.fire({
+    title: 'Are you sure, delete this note?',
+    type: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, delete it!'
+  }).then((result) => {
+    if (result.value) {
+      deleteNote()
+    }
+  })
 })
 
 function searchItem(key){
@@ -228,9 +359,19 @@ function searchItem(key){
   $('.list-note-search').show()
 }
 
+function hiddenImg(){
+  $('.saved').hide()
+}
+
+var callDebounceHideImage = _.debounce(hiddenImg, 2000)
+
+var callDebounceSearch = _.debounce(function(str){
+    searchItem(str);
+}, 400);
+
 $('body').on('keyup', '#search-input', function(e){
   var keySearch = $(this).val();
-  debounce(searchItem, 400)(keySearch)
+  callDebounceSearch(keySearch)
 })
 
 function renderNotePin(){
@@ -242,13 +383,14 @@ function renderNotePin(){
 }
 
 function createNote(title, content, notebook){
+  if(!title && !content) return;
   notebook = notebook || $('#notebooks_input').val()
   if(user.email){
     db.collection('note').add({
-      title: title || 'Untitled',
+      title: title.trim() || 'Untitled',
       content: content,
       email: user.email,
-      notebook: notebook,
+      notebook: notebook.trim(),
       time: new Date().getTime(),
       pin: $('#note-pin').is(':checked'),
     })
@@ -257,18 +399,39 @@ function createNote(title, content, notebook){
   }
 }
 
+function deleteNote(title, content, notebook){
+  db.collection("note").doc($('#idHidden').val()).delete().then(function() {
+      Swal.fire(
+        'Deleted!',
+        'Your note has been deleted.',
+        'success'
+      )
+  }).catch(function(error) {
+      Swal.fire(
+        'Error!',
+        'Your note not has been delete.',
+        'error'
+      )
+  });
+
+}
+
 function updateNote(title, content, notebook){
   notebook = notebook || $('#notebooks_input').val()
   if(user.email){
     db.collection('note').doc($('#idHidden').val()).set({
-      title: title || 'Untitled',
+      title: title.trim() || 'Untitled',
       content: content,
       email: user.email,
-      notebook: notebook,
+      notebook: notebook.trim(),
       pin: $('#note-pin').is(':checked'),
+    }).then(function(){
+      $('.saved').show()
+      setImageMess('/icon/awesome-icons/svg/correct-symbol.svg', 20, 20, 'Dữ liệu đã được lưu.')
+      callDebounceHideImage()
     })
   } else {
-    console.log('cannot create note, please login')
+    console.log('cannot update note, please login')
   }
 }
 
@@ -313,7 +476,6 @@ function createUserWithEmailAndPassword(email, password){
     if(user){
       user.sendEmailVerification()
     }
-    console.log('created', data)
   })
   .catch(function(error) {
     // Handle Errors here.
