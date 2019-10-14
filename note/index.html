@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GOSUK-NOTE</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
+    <link rel="icon" href="/images/astronaut.png">
+    <link rel="stylesheet" type="text/css" href="/css/quill.snow.css">
+    <link rel="stylesheet" type="text/css" href="/css/jquery-ui.css">
+    <link rel="stylesheet" type="text/css" href="/css/app.css">
+</head>
+<body>
+    <div class="header">
+        <div class="dis-inf">
+            <img class="img-logout" src="icon/awesome-icons/svg/power-button-off.svg">
+        </div>
+        <div class="dis-inf">
+            <a class="btn" href="/icon">Icon</a>
+            <a class="btn" href="/feed">Feed</a>
+            <a class="btn" href="/vocabulary">Vocabulary</a>
+            <a class="btn active" href="/note">Note</a>
+        </div>
+    </div>
+    <div class="content-area" style="display: none;">
+        <div class="sidebar">
+            <div class="wrap">
+               <div class="search">
+                  <input type="text" class="searchTerm" placeholder="Input search" id="search-input">
+                  <button type="submit" class="searchButton">
+                    <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                         width="20px" height="20px" viewBox="0 0 446.25 446.25" style="enable-background:new 0 0 446.25 446.25;"
+                         xml:space="preserve">
+                        <g>
+                            <g id="search">
+                                <path d="M318.75,280.5h-20.4l-7.649-7.65c25.5-28.05,40.8-66.3,40.8-107.1C331.5,73.95,257.55,0,165.75,0S0,73.95,0,165.75
+                                    S73.95,331.5,165.75,331.5c40.8,0,79.05-15.3,107.1-40.8l7.65,7.649v20.4L408,446.25L446.25,408L318.75,280.5z M165.75,280.5
+                                    C102,280.5,51,229.5,51,165.75S102,51,165.75,51S280.5,102,280.5,165.75S229.5,280.5,165.75,280.5z" fill="#fff"/>
+                            </g>
+                        </g>
+                    </svg>
+                 </button>
+               </div>
+            </div>
+            <div class="note-wrap"><img width="16px" height="16px" src="/images/bookmark.svg" style="padding-right: 5px"/> PIN</div>
+            <ul id="notePin-content">
+            </ul>
+
+            <div class="note-wrap all"><img width="18px" height="18px" src="/images/note.svg" style="padding-right: 5px"/> ALL NOTE</div>
+
+            <div class="note-wrap"><img width="18px" height="18px" src="/images/notebooks.svg" style="padding-right: 5px"/> NOTEBOOK</div>
+            <ul id="notebook-content">
+                <img class="load-note" src="/images/load.gif" />
+            </ul>
+        </div>
+        <div class="list-note" style="display: none;">
+            <ul id="ul-note">
+            </ul>
+        </div>
+        <div class="list-note-search" style="display: none;">
+            <ul id="ul-note-search">
+            </ul>
+        </div>
+        <div class="content">
+            <div class="btn-group">
+                <div>
+                    <div class="saved">
+                        <span id="mess-note">Dữ liệu lần đầu cần được save</span>
+                        <img id="image-mess-note" src="/images/info.svg" />
+                        <!-- icon/awesome-icons/svg/correct-symbol.svg -->
+                    </div>
+                </div>
+                <div class="dis-flex-center">
+                    <div class="btn btn-save" id="saveButton">SAVE</div>
+                    <div class="btn-more">
+                        <svg width="15" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 60 60" style="enable-background:new 0 0 60 60;" xml:space="preserve">
+                            <g>
+                                <path d="M30,16c4.411,0,8-3.589,8-8s-3.589-8-8-8s-8,3.589-8,8S25.589,16,30,16z"/>
+                                <path d="M30,44c-4.411,0-8,3.589-8,8s3.589,8,8,8s8-3.589,8-8S34.411,44,30,44z"/>
+                                <path d="M30,22c-4.411,0-8,3.589-8,8s3.589,8,8,8s8-3.589,8-8S34.411,22,30,22z"/>
+                            </g>
+                        </svg>
+                        <ul class="dropdown">
+                            <li class="dropdown-item create">Create note</li>
+                            <li class="dropdown-item del">Delete note</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+            <div class="note-area">
+                <div class="note_input_group">
+                    <input type="hidden" id="idHidden">
+                    <input type="text" class="border_none notebooks_input" placeholder="Input notebooks" value="" id="notebooks_input" />
+                    <div class="pin">
+                        <input type="checkbox" id="note-pin" name="note-pin" value="true">
+                        <label for="note-pin">PIN</label>
+                    </div>
+                </div>
+                <div>
+                    <div id="editorjs">
+                        <div><input type="text" name="title" id="note_title" placeholder="Title"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="">
+        <img class="load-note-init" src="/images/load.gif" />
+    </div>
+
+
+    <!-- https://www.gstatic.com/firebasejs/7.0.0 -->
+    <script src="/js/firebase-app.js"></script>
+    <script src="/js/firebase-firestore.js"></script>
+    <script src="/js/firebase-auth.js"></script>
+    <script src="/js/quill.min.js"></script>
+    <script src="/js/jquery-3.4.1.min.js"></script>
+    <script src="/js/jquery-ui.min.js"></script>
+    <script src="/js/lodash.min.js"></script>
+    <script src="/js/sweetalert2.min.js"></script>
+    <script src="/js/common.js"></script>
+    <script src="/cf.js"></script>
+    <script src="/js/fuse.js"></script>
+    <script src="/note/js/app.js"></script>
+</body>
+</html>
