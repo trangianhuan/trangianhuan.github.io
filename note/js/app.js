@@ -464,6 +464,9 @@ firebase.auth().onAuthStateChanged(function(userLogin) {
     user = userLogin
     initSetup()
     $('.img-logout').show()
+    $('.content-area').css('display', 'flex')
+    $('.load-note-init').hide()
+
   } else {
     window.location.href = '/login';
   }

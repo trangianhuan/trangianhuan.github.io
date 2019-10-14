@@ -569,6 +569,11 @@ body{
     height: 32px;
     padding: 10px calc(50% - 16px);
 }
+.load-note-init{
+    width: 64px;
+    height: 64px;
+    padding: 100px calc(50% - 16px);
+}
 .ql-editor{
     min-height: 400px;
 }
