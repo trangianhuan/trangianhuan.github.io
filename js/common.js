@@ -95,3 +95,5 @@ function formatDate(datetime){
 
     return dd+'/'+mm+'/'+yyyy + ' ' + hh + ':' + minus + ':' + ss;
 }
+
+var log = console.log

@@ -8,10 +8,15 @@
 </head>
 <body>
     <div class="header">
-        <a class="btn active" href="/icon">Icon</a>
-        <a class="btn" href="/feed">Feed</a>
-        <a class="btn" href="/vocabulary">Vocabulary</a>
-        <a class="btn" href="/note">Note</a>
+        <div class="dis-inf">
+            <img class="img-logout" src="icon/awesome-icons/svg/power-button-off.svg">
+        </div>
+        <div class="dis-inf">
+            <a class="btn" href="/icon">Icon</a>
+            <a class="btn" href="/feed">Feed</a>
+            <a class="btn" href="/vocabulary">Vocabulary</a>
+            <a class="btn active" href="/note">Note</a>
+        </div>
     </div>
     <div class="content-area">
         <div class="content icon">
@@ -20,7 +25,7 @@
                 </div>
                 <div class="control-item">
                     <div class="control-item_header">Search</div>
-                    <input type="text" name="search" class="control-item_input" placeholder="" />
+                    <input type="text" name="search" id="ip-search-icon" class="control-item_input" placeholder="" />
                 </div>
                 <div class="pin">
                     <input type="checkbox" id="check-all" name="check-all" value="true">
@@ -35,8 +40,10 @@
     </div>
 
     <script src="/js/jquery-3.4.1.min.js"></script>
+    <script src="/js/lodash.min.js"></script>
     <script src="/js/lazyload.min.js"></script>
     <script src="/js/common.js"></script>
+    <script src="/js/fuse.js"></script>
     <script src="/icon/js/icon.js"></script>
     <script src="/icon/js/app.js"></script>
 </body>

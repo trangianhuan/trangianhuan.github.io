@@ -1,10 +1,10 @@
-const VERSION = 3;
+const VERSION = 4;
 const CACHE_NAME = 'gosuk-v' + VERSION;
 const urlsToCache = [
   '/js/jquery-3.4.1.min.js',
   '/js/jquery-ui.min.js',
-  '/js/jquery-ui.css',
-  '/js/quill.snow.css',
+  '/css/jquery-ui.css',
+  '/css/quill.snow.css',
   '/icon/js/icon.js',
   'https://fonts.googleapis.com/css?family=Roboto',
   '/js/firebase-app.js',

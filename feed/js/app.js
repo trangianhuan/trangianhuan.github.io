@@ -1,13 +1,3 @@
-// Your web app's Firebase configuration
-var firebaseConfig = {
-  apiKey: "AIzaSyATdwi0PUsJ8NsB4blrNgUTFSGn99xS02U",
-  authDomain: "trangianhuan-github-io.firebaseapp.com",
-  databaseURL: "https://trangianhuan-github-io.firebaseio.com",
-  projectId: "trangianhuan-github-io",
-  storageBucket: "",
-  messagingSenderId: "397638218028",
-  appId: "1:397638218028:web:0bf1e9de2ec91b9e50bc89"
-};
 
 // Initialize Firebase
 var app = firebase.initializeApp(firebaseConfig);
@@ -21,7 +11,7 @@ var stringLoadImg = '<div class="load" ><img src="/images/load.gif"></div>'
 initSetup()
 
 function initSetup(){
-  db.collection('feed').orderBy('public_at', 'desc').onSnapshot(function(snapshot){
+  db.collection(dbCollectFeed).orderBy('public_at', 'desc').onSnapshot(function(snapshot){
     snapshot.docChanges().forEach(function(change) {
       arrSite.push(change.doc.data().site)
 
@@ -161,7 +151,7 @@ function sleep(ms) {
 
 function initPublicDate()
 {
-  db.collection("feed").get()
+  db.collection(dbCollectFeed).get()
     .then(function(querySnapshot) {
       var batch = db.batch();
 
@@ -169,11 +159,11 @@ function initPublicDate()
           // doc.data() is never undefined for query doc snapshots
         data = doc.data();
         // if(!data.public_at || typeof data.public_at == 'object'){
-        //   var sfRef = db.collection("feed").doc(doc.id);
+        //   var sfRef = db.collection(dbCollectFeed).doc(doc.id);
         //   batch.update(sfRef, {"public_at": formatDate(data.created_at.toDate()) });
         // }
         if(typeof data.public_at == 'string'){
-          var sfRef = db.collection("feed").doc(doc.id);
+          var sfRef = db.collection(dbCollectFeed).doc(doc.id);
           batch.update(sfRef, {"public_at": getEpochTime(data.public_at) });
         }
 

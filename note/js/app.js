@@ -75,18 +75,6 @@ if(saveButton){
   });
 }
 
-
-// Your web app's Firebase configuration
-var firebaseConfig = {
-  apiKey: "AIzaSyATdwi0PUsJ8NsB4blrNgUTFSGn99xS02U",
-  authDomain: "trangianhuan-github-io.firebaseapp.com",
-  databaseURL: "https://trangianhuan-github-io.firebaseio.com",
-  projectId: "trangianhuan-github-io",
-  storageBucket: "",
-  messagingSenderId: "397638218028",
-  appId: "1:397638218028:web:0bf1e9de2ec91b9e50bc89"
-};
-
 // Initialize Firebase
 var app = firebase.initializeApp(firebaseConfig);
 var db = firebase.firestore(app);
@@ -113,7 +101,7 @@ function addCollectionInit(collectionName){
 }
 
 function initSetup(){
-  db.collection('note').where('email', '==', user.email).onSnapshot(function(snapshot){
+  db.collection(dbCollectNote).where('email', '==', user.email).onSnapshot(function(snapshot){
     snapshot.docChanges().forEach(function(change) {
       var data = change.doc.data()
       if (change.type === "added") {
@@ -337,6 +325,10 @@ $('body').on('click', '.dropdown-item.create', function(e){
   quill.setContents('')
 })
 
+$('body').on('click', '.img-logout', function(e){
+  logout()
+})
+
 $('body').on('click', '.dropdown-item.del', function(e){
   Swal.fire({
     title: 'Are you sure, delete this note?',
@@ -386,7 +378,7 @@ function createNote(title, content, notebook){
   if(!title && !content) return;
   notebook = notebook || $('#notebooks_input').val()
   if(user.email){
-    db.collection('note').add({
+    db.collection(dbCollectNote).add({
       title: title.trim() || 'Untitled',
       content: content,
       email: user.email,
@@ -399,8 +391,27 @@ function createNote(title, content, notebook){
   }
 }
 
+function createNoteHis(idNote, title, content, notebook, pin){
+  if(!title && !content) return;
+  notebook = notebook || $('#notebooks_input').val()
+  if(user.email){
+    db.collection(dbCollectNoteHis).add({
+      idNote: idNote,
+      title: title,
+      content: content,
+      email: user.email,
+      notebook: notebook,
+      pin: pin,
+      timeUpdate: new Date().getTime(),
+    })
+  } else {
+    console.log('cannot create his note, please login')
+  }
+}
+
+
 function deleteNote(title, content, notebook){
-  db.collection("note").doc($('#idHidden').val()).delete().then(function() {
+  db.collection(dbCollectNote).doc($('#idHidden').val()).delete().then(function() {
       Swal.fire(
         'Deleted!',
         'Your note has been deleted.',
@@ -419,7 +430,7 @@ function deleteNote(title, content, notebook){
 function updateNote(title, content, notebook){
   notebook = notebook || $('#notebooks_input').val()
   if(user.email){
-    db.collection('note').doc($('#idHidden').val()).set({
+    db.collection(dbCollectNote).doc($('#idHidden').val()).set({
       title: title.trim() || 'Untitled',
       content: content,
       email: user.email,
@@ -429,6 +440,7 @@ function updateNote(title, content, notebook){
       $('.saved').show()
       setImageMess('/icon/awesome-icons/svg/correct-symbol.svg', 20, 20, 'Dữ liệu đã được lưu.')
       callDebounceHideImage()
+      createNoteHis($('#idHidden').val(), title, content, notebook.trim(), $('#note-pin').is(':checked'))
     })
   } else {
     console.log('cannot update note, please login')
@@ -437,7 +449,7 @@ function updateNote(title, content, notebook){
 
 function createNotebook(name){
   if(user.email){
-    db.collection('notebooks').add({
+    db.collection(dbCollectNb).add({
       code: stringToSlug(name) + '-' + getrandom(),
       name: name,
       email: user.email,
@@ -451,6 +463,7 @@ firebase.auth().onAuthStateChanged(function(userLogin) {
   if (userLogin) {
     user = userLogin
     initSetup()
+    $('.img-logout').show()
   } else {
     window.location.href = '/login';
   }
