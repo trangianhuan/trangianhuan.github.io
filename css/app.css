@@ -31,7 +31,7 @@ a,a:hover{
   border: 0;
   font-size: 100%;
 }
-.body-feed input,select{
+.feed-control input,select{
     height: 24px;
 }
 
@@ -344,6 +344,7 @@ body{
     border-radius: 3px;
     text-align: center;
     min-width: 75px;
+    cursor: pointer;
 }
 .btn.active{
     background-color: #F98B41;
@@ -796,4 +797,14 @@ input[type=checkbox]:checked:disabled + label:before {
   border-bottom-color: #2ecc71;
   border-width: 10px;
   margin-left: -10px;
+}
+
+.init-base-gif{
+  position: fixed;
+  width: 100%;
+  /* height: 100%; */
+  margin-top: 44px;
+  padding: 50% 48%;
+  background-color: #f8f8f8;
+  z-index: 1000;
 }
