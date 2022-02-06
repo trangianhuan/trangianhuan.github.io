@@ -59,7 +59,7 @@
     });
 
     $('body').on('click', '.tag-item', function (e) {
-        var siteSelect = $(this).text();
+        var siteSelect = $(this).data('name');
         keyFilter = siteSelect
         var feedsFilter = getListFilter()
 
@@ -232,7 +232,11 @@
     function appendTag(tagData) {
         tagData.forEach((data) => {
             $('.tag').append(`
-                <li class="tag-item cursor-pointer m-2 p-2 px-4 bg-gray-100 rounded-full flex items-center">${createTagName(data)}</li>
+                <li class="tag-item cursor-pointer m-2 p-2 px-4 bg-gray-100 rounded-full flex items-center"
+                data-name="${data}"
+                >
+                    ${createTagName(data)}
+                </li>
             `)
         })
     }
