@@ -1,0 +1,316 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.slim.min.js"></script>
+  <script type="module">
+      Number.prototype.padLeft = function(base,chr){
+        var  len = (String(base || 10).length - String(this).length)+1;
+        return len > 0? new Array(len).join(chr || '0')+this : this;
+    }
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.6/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.6/firebase-auth.js";
+    import { getFirestore, query,collection, where, orderBy, limit, getDocs, startAt, startAfter } from "https://www.gstatic.com/firebasejs/9.6.6/firebase-firestore.js";
+
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyATdwi0PUsJ8NsB4blrNgUTFSGn99xS02U",
+      authDomain: "trangianhuan-github-io.firebaseapp.com",
+      databaseURL: "https://trangianhuan-github-io.firebaseio.com",
+      projectId: "trangianhuan-github-io",
+      storageBucket: "trangianhuan-github-io.appspot.com",
+      messagingSenderId: "397638218028",
+      appId: "1:397638218028:web:0bf1e9de2ec91b9e50bc89"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+
+    const auth = getAuth();
+    window.feeds = [];
+    window.tags = [];
+    var idb;
+    var page = 0;
+    var size = 20;
+    var keyFilter = '';
+    var lastDoc;
+
+    auth.onAuthStateChanged(function(user) {
+        $('#spin').hide()
+        if (user) {
+            $('#login').hide()
+            $('#main').show()
+        } else {
+            $('#login').show()
+            $('#main').hide()
+        }
+    });
+
+    $(window).scroll(function () {
+        if ($(window).scrollTop() >= $(document).height() - $(window).height() - 100) {
+            console.log('step 2');
+            renderListWithPaging()
+        }
+    });
+
+    $('body').on('click', '.tag-item', function (e) {
+        var siteSelect = $(this).text();
+        keyFilter = siteSelect
+        var feedsFilter = getListFilter()
+
+        $('.post').empty()
+        appendList(feedsFilter)
+    })
+
+    function getListFilter() {
+        var feedsFilter = feeds;
+        if (keyFilter) {
+            var feedsFilter = feeds.filter(function (el) {
+                return el.site == keyFilter;
+            })
+        }
+        return feedsFilter;
+    }
+
+    function renderListWithPaging(){
+        var feedsFilter = getListFilter()
+        var feedsSlice = feedsFilter.slice(page, page+size)
+        page = page+size;
+        appendList(feedsSlice)
+    }
+
+    async function getfeeds(lastDoc){
+        const db = getFirestore();
+        var feedRef = collection(db, "feed");
+        var q;
+
+        if (lastDoc) {
+            q = query(feedRef, orderBy("public_at", "asc"), startAfter(lastDoc));
+        } else {
+            q = query(feedRef, orderBy("public_at", "desc"));
+        }
+
+        var listFeeds = [];
+
+        const querySnapshot = await getDocs(q);
+
+        querySnapshot.forEach((doc) => {
+            var data = doc.data();
+            listFeeds.push({
+                created_at: data['created_at'],
+                site: data['site'],
+                link: data['link'],
+                public_at: data['public_at'],
+                public_at: data['public_at'],
+                title: data['title']
+            })
+        });
+
+        saveToDB(listFeeds);
+        // add item to page for paging
+        page = page + listFeeds.length;
+
+        feeds = [...feeds, ...listFeeds];
+
+        if (lastDoc) {
+            prependList(listFeeds);
+        } else {
+            appendList(listFeeds);
+        }
+
+    }
+
+    function saveToDB(feedData){
+        if(feedData.length == 0) return;
+
+        var transaction = idb.transaction(["feeds"], "readwrite");
+
+        var objectStore = transaction.objectStore("feeds");
+        feedData.forEach(function(feed) {
+            objectStore.add(feed);
+        });
+    }
+
+    getDataInDB()
+
+    function getDataInDB(){
+        var request = window.indexedDB.open("mydb", 3);
+
+        request.onerror = function(event) {
+            console.log("Why didn't you allow my web app to use IndexedDB?!");
+        };
+
+        request.onsuccess = function(event) {
+            idb = event.target.result;
+            var transaction = idb.transaction(["feeds"], "readwrite");
+
+            var objectStore = transaction.objectStore("feeds");
+            objectStore.getAll().onsuccess = function(event) {
+                if(event.target.result.length == 0){
+                    getfeeds()
+                    return;
+                }
+
+                var listSorted = event.target.result.sort(function(a, b) {
+                    return b.public_at - a.public_at;
+                })
+                // set list global
+                feeds = listSorted;
+
+                var listTag = []
+                event.target.result.forEach((e)=>{
+                    listTag.push(e.site)
+                })
+
+                lastDoc = listSorted[0].public_at || null;
+                console.log('lastDoc' ,listSorted[0])
+                tags = [...new Set(listTag)];
+                appendTag(tags)
+
+                // appendList(listSorted)
+                renderListWithPaging()
+
+                // get list from firebase
+                getfeeds(lastDoc)
+            };
+        };
+
+        request.onupgradeneeded = function(event) {
+            var db = event.target.result;
+            var objectStore = db.createObjectStore("feeds", { autoIncrement : true });
+            // objectStore.createIndex("site", "site", { unique: false });
+        };
+    }
+
+    function doLogin(email, password) {
+        signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            const user = userCredential.user;
+        })
+        .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+        });
+    }
+
+    function getPreDate(numDay) {
+        return new Date(new Date().getTime() - numDay*24*60*60*1000);
+    }
+
+    function prependList(feedData) {
+        var classDate = '';
+        var preDate = getPreDate(5);
+
+        feedData.forEach((data) => {
+            var d = new Date(data.public_at);
+            classDate = '';
+            if(d.getTime() > preDate.getTime()){
+                classDate = 'text-orange-300';
+            }
+            var dformat = [
+                d.getDate().padLeft(),
+                (d.getMonth()+1).padLeft(),
+                d.getFullYear()
+            ].join('/') +' ' +
+              [d.getHours().padLeft(),
+               d.getMinutes().padLeft(),
+               d.getSeconds().padLeft()].join(':');
+
+            $('.post').prepend(`
+                <li class="flex justify-between border-b last:border-b-0 hover:bg-gray-100 ${classDate}">
+                    <a href="${data.link}" target="_blank" class="flex-1 p-4">${data.title}</a>
+                    <div class="p-4 whitespace-nowrap ${classDate}">${dformat}</div>
+                </li>
+            `)
+        })
+    }
+
+    function appendTag(tagData) {
+        tagData.forEach((data) => {
+            $('.tag').append(`
+                <li class="tag-item cursor-pointer m-2 p-2 px-4 bg-gray-100 rounded-full flex items-center">${data}</li>
+            `)
+        })
+    }
+
+    function appendList(feedData) {
+
+        var preDate = getPreDate(5);
+        var classDate = '';
+        feedData.forEach((data) => {
+            var d = new Date(data.public_at);
+            classDate = '';
+            if(d.getTime() >= preDate.getTime()){
+                classDate = 'text-orange-300';
+            }
+            var dformat = [
+                d.getDate().padLeft(),
+                (d.getMonth()+1).padLeft(),
+                d.getFullYear()
+            ].join('/') +' ' +
+              [d.getHours().padLeft(),
+               d.getMinutes().padLeft(),
+               d.getSeconds().padLeft()].join(':');
+
+            $('.post').append(`
+                <li class="flex justify-between border-b last:border-b-0 hover:bg-gray-100 ${classDate}">
+                    <a href="${data.link}" target="_blank" class="flex-1 p-4">${data.title}</a>
+                    <div class="p-4 whitespace-nowrap text-xs ${classDate}">${dformat}</div>
+                </li>
+            `)
+        });
+    }
+
+    window.login = function(){
+        var email = $('#email').val()
+        var password = $('#password').val()
+        if (email && password) {
+            doLogin(email, password)
+        }
+    }
+
+  </script>
+</head>
+<body class="p-4 md:p-0">
+    <!-- loading  -->
+    <div id="spin" class="flex items-center justify-center mt-40">
+        <div class="w-20 h-20 border-t-4 border-b-4 border-orange-700 rounded-full animate-spin"></div>
+    </div>
+
+    <!-- Login form -->
+    <div id="login" style="display: none;" class="p-4 max-w-screen-sm m-auto my-4 shadow-lg">
+        <p class="text-center text-2xl	p-4 pb-8">Sign In</p>
+        <label class="block mb-4">
+            <span class="after:content-['*'] after:ml-0.5 after:text-red-500 block text-sm font-medium text-slate-700">
+              Email
+            </span>
+            <input type="email" id="email" name="email" class="mt-1 px-3 py-2 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1" placeholder="Input a email" />
+        </label>
+        <label class="block mb-4">
+            <span class="after:content-['*'] after:ml-0.5 after:text-red-500 block text-sm font-medium text-slate-700">
+              Password
+            </span>
+            <input type="password" id="password" name="password" class="mt-1 px-3 py-2 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1" placeholder="input a password" />
+        </label>
+        <button onclick="login()" class="w-full bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded">
+            Login
+          </button>
+    </div>
+
+    <!-- main -->
+    <div id="main" style="display: none;">
+        <div class="p-4 w-full shadow-lg sticky top-0 bg-white" >
+            <ul class="flex flex-wrap tag"></ul>
+        </div>
+        <div class="max-w-3xl mx-auto p-4 rounded-lg shadow-lg" style="overflow: auto;">
+            <ul class="post"></ul>
+        </div>
+    </div>
+</body>
+</html>
