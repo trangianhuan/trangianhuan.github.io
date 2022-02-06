@@ -54,7 +54,6 @@
 
     $(window).scroll(function () {
         if ($(window).scrollTop() >= $(document).height() - $(window).height() - 100) {
-            console.log('step 2');
             renderListWithPaging()
         }
     });
@@ -169,7 +168,6 @@
                 })
 
                 lastDoc = listSorted[0].public_at || null;
-                console.log('lastDoc' ,listSorted[0])
                 tags = [...new Set(listTag)];
                 appendTag(tags)
 
@@ -234,13 +232,22 @@
     function appendTag(tagData) {
         tagData.forEach((data) => {
             $('.tag').append(`
-                <li class="tag-item cursor-pointer m-2 p-2 px-4 bg-gray-100 rounded-full flex items-center">${data}</li>
+                <li class="tag-item cursor-pointer m-2 p-2 px-4 bg-gray-100 rounded-full flex items-center">${createTagName(data)}</li>
             `)
         })
     }
 
-    function appendList(feedData) {
+    function createTagName(strTag){
+        try {
+            var a = new URL(strTag)
+            var urls = a.hostname.split('.');
+            return urls.slice(-2).join('.');
+        } catch (error) {
+            return strTag;
+        }
+    }
 
+    function appendList(feedData) {
         var preDate = getPreDate(5);
         var classDate = '';
         feedData.forEach((data) => {
