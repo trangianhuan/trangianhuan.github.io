@@ -1,0 +1,112 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta name='viewport' content='width=device-width'>
+    <link rel="stylesheet" href="/story/style.css">
+    <title>Read Story</title>
+</head>
+<body>
+    <div>
+        <div class="field pt" id="searchform">
+            <input type="text" id="page" value="" />
+            <button type="button" id="search" class="button" onclick="read()">Read</button>
+          </div>
+        <table class="pt">
+            <tbody >
+                <tr>
+                    <td style="color:white">Class find</td><td> <input id="classFind" type="text" value=""/> </td>
+                </tr><tr>
+                    <td style="color:white">Class remove</td><td> <input id="classRemove" type="text" value=""/> </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <br/>
+        <br/>
+        <br/>
+    </div>
+
+    <div>
+        <button class="button" onclick="back()">Back</button>
+        <button class="button" onclick="next()">Next</button>
+    </div>
+
+    <div class="pt" id="title" style="color:white"></div>
+    <div class="pt" id="content" style="color:white"></div>
+
+    <div>
+        <button class="button" onclick="back()">Back</button>
+        <button class="button" onclick="next()">Next</button>
+    </div>
+
+    <script src="/js/jquery-3.4.1.min.js"></script>
+
+    <script>
+        var content;
+
+        const classFind = localStorage.getItem("classFind") || '.chapter-content';
+        const classRemove = localStorage.getItem("classRemove") || 'div,script,ins,a';
+        const url = localStorage.getItem("url") || 'https://truyen35.vn/ta-tai-the-gioi-yeu-ma-lang-le-them-diem-thang-cap/chuong-8';
+        $('#classFind').val(classFind)
+        $('#classRemove').val(classRemove)
+        $('#page').val(url)
+
+        async function back() {
+            let page = $('#page').val();
+            let pageArr = page.split('-');
+            let nextPageNumber = +pageArr.pop() -1;
+            pageArr.push(nextPageNumber);
+
+            localStorage.setItem("url", pageArr.join('-'));
+            $('#page').val(pageArr.join('-'))
+            read();
+        }
+        async function next() {
+            let page = $('#page').val();
+            let pageArr = page.split('-');
+            let nextPageNumber = +pageArr.pop() +1;
+            pageArr.push(nextPageNumber);
+
+            localStorage.setItem("url", pageArr.join('-'));
+            $('#page').val(pageArr.join('-'))
+            read();
+        }
+
+        async function read() {
+            $('#search').addClass('loading');
+
+            let valFind = $('#classFind').val();
+            let valRemove = $('#classRemove').val();
+            let page = $('#page').val();
+
+            localStorage.setItem("classFind", valFind);
+            localStorage.setItem("classRemove", valRemove);
+
+            var url = 'https://corsproxy.io/?' + page;
+
+            fetch(url, {
+                method: 'get',
+            }).then(function(response) {
+                return response.text();
+            }).then(function(data) {
+                content = data;
+                const parser = new DOMParser();
+
+                // Step 2: Use the parseFromString method to create the DOM
+                const parsedHTML = parser.parseFromString(content, 'text/html');
+                var body = $('<div>' + parsedHTML.querySelector(valFind).innerHTML + '</div>');
+                body.find(valRemove).remove();
+
+
+                $('#title').html(parsedHTML.querySelector('.chapter-title').innerHTML);
+                $('#content').html(body.html());
+                $('#search').removeClass('loading');
+                $("html, body").animate({scrollTop: 0}, 500);
+            });
+        }
+
+
+    </script>
+</body>
+</html>
