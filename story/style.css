@@ -4,6 +4,13 @@
     font:12pt Arial;
 }
 
+br {
+    padding-top: 10px;
+    content: "a" !important;
+    display: block;
+    margin-top: 10px !important;
+}
+
 body {
     padding: 16px;
   background-color: #121212;
