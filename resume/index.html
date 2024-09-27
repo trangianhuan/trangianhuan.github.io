@@ -1,0 +1,200 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width" />
+
+        <title>Resume</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/fontawesome.min.css"
+            integrity="sha512-B46MVOJpI6RBsdcU307elYeStF2JKT87SsHZfRSkjVi4/iZ3912zXi45X5/CBr/GbCyLx6M1GQtTKYRd52Jxgw=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/regular.min.css"
+            integrity="sha512-j+P0XpTXw+hDTK64xqC/cjv62cf629/IR4/0bokmich7J8XdVlWT40+1M/Z58rCQ4F+3QoJIfzh6Ui6TTIP6WQ=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+        />
+        <link
+            href="https://fonts.googleapis.com/css?family=Lato:400,700"
+            rel="stylesheet"
+            type="text/css"
+        />
+
+        <script
+            defer
+            src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+        ></script>
+        <script src="data.js"></script>
+        <style>
+            body {
+                font-family: "Lato", sans-serif;
+                margin: 0 auto !important;
+            }
+            .body {
+                padding: 30px;
+            }
+            .body .name {
+                font-weight: bold;
+                font-size: 20px;
+            }
+            .title {
+                font-weight: bold;
+                text-transform: uppercase;
+                border-bottom: 1px solid #dfdfdf;
+                padding-bottom: 10px;
+            }
+            .header {
+                display: flex;
+                height: 200px;
+                background-color: red;
+                padding: 30px 50px;
+            }
+            .header img {
+                border-radius: 50%;
+                width: 140px;
+                height: 140px;
+            }
+            .info {
+                flex: 1;
+                padding-left: 50px;
+                color: white;
+            }
+            .info .name {
+                font-size: 24px;
+                font-weight: bold;
+            }
+            .info .job {
+                letter-spacing: 5px;
+            }
+            .info span {
+                padding-left: 5px;
+            }
+            .circle-dot {
+                width: 8px; /* Độ rộng của dấu chấm */
+                height: 8px; /* Chiều cao của dấu chấm */
+                background-color: #ffc0cb; /* Màu nền của dấu chấm */
+                border-radius: 50%; /* Tạo hình tròn */
+                display: inline-block; /* Giúp dấu chấm hiển thị đúng */
+                margin-right: 10px;
+            }
+
+            @media print {
+                body {
+                    -webkit-print-color-adjust: exact;
+                }
+
+                @page {
+                    margin: 60px; /* Lề 20mm cho mỗi trang in */
+                }
+
+                .header {
+                    background-color: red !important;
+                    print-color-adjust: exact;
+                }
+            }
+        </style>
+    </head>
+    <body x-data="data">
+        <div class="header">
+            <div>
+                <img src="avatar.jpeg" />
+            </div>
+            <div class="info">
+                <p class="name mb-1" x-text="FullName"></p>
+                <p class="job">B A C K E N D D E V E L O P E R</p>
+                <div class="flex mt-3">
+                    <div class="flex-1">
+                        <div class="mb-1">
+                            <i class="fa-regular fa-address-card"></i>
+                            <span x-text="GraduatedAt"></span>
+                        </div>
+                        <div class="mb-1">
+                            <i class="fa-regular fa-heart"></i>
+                            <span x-text="Hobby"></span>
+                        </div>
+                    </div>
+                    <div class="flex-1">
+                        <div class="mb-1">
+                            <i class="fa-regular fa-envelope"></i>
+                            <span x-text="Email"></span>
+                        </div>
+                        <div class="mb-1">
+                            <i class="fa-regular fa-address-card"></i>
+                            <span x-text="Phone"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="body">
+            <h1 class="title">Summary</h1>
+            <p x-text="Summary" class="pt-4 pb-4"></p>
+            <br />
+            <h1 class="title">Skill</h1>
+            <div class="flex flex-row flex-wrap p-6">
+                <template x-data x-for="skill in Skills">
+                    <div class="flex items-center basis-1/2 pb-2">
+                        <span class="circle-dot"></span>
+                        <span x-text="skill"></span>
+                    </div>
+                </template>
+            </div>
+            <br />
+
+            <h1 class="title">Projects</h1>
+            <div class="p-6">
+                <template x-data x-for="project in Projects">
+                    <div class="pb-4">
+                        <h1 class="name pb-2" x-text="project.Name"></h1>
+                        <div class="flex items-center pb-1">
+                            <span class="circle-dot"></span>
+                            <span class="basis-1/4">Position</span>
+                            <span
+                                class="basis-3/4"
+                                x-text="project.Responsibility"
+                            ></span>
+                        </div>
+                        <div class="flex items-center pb-1">
+                            <span class="circle-dot"></span>
+                            <span class="basis-1/4">Duration</span>
+                            <span
+                                class="basis-3/4"
+                                x-text="project.From"
+                            ></span>
+                        </div>
+                        <div class="flex pb-1">
+                            <span class="circle-dot mt-2"></span>
+                            <span class="basis-1/4">Description</span>
+                            <span
+                                class="basis-3/4"
+                                x-text="project.Description"
+                            >
+                            </span>
+                        </div>
+                        <div class="flex items-center pb-1">
+                            <span class="circle-dot"></span>
+                            <span class="basis-1/4">Technologies</span>
+                            <span
+                                class="basis-3/4"
+                                x-text="project.DevelopEnvironment"
+                            ></span>
+                        </div>
+                        <div class="flex items-center pb-1">
+                            <span class="circle-dot"></span>
+                            <span class="basis-1/4">Team size</span>
+                            <span class="basis-3/4" x-text="project.TeamSize"
+                                >4</span
+                            >
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </body>
+</html>
